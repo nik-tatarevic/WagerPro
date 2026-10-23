@@ -1,0 +1,32 @@
+spring:
+    application:
+        name: catalog-service
+
+    datasource:
+        url: jdbc:postgresql://localhost:5432/catalog_db
+        username: postgres
+        password: password
+        driver-class-name: org.postgresql.Driver
+
+    jpa:
+        hibernate:
+            ddl-auto: validate
+        show-sql: true
+
+    flyway:
+        enabled: true
+
+server:
+    port: 8082
+
+security:
+    jwt:
+        # Development-only secret. Always override JWT_SECRET outside local development.
+        secret: ${JWT_SECRET:V2FnZXJQcm9EZXZlbG9wbWVudFNlY3JldEtleUNoYW5nZU1lMjAyNg==}
+        expiration-ms: ${JWT_EXPIRATION_MS:10800000}
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info
