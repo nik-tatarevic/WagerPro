@@ -10,6 +10,8 @@ import com.wagerpro.wagerservice.infrastructure.persistence.entity.Transaction;
 
 @Repository
 public interface TransactionJpaRepository extends JpaRepository<Transaction, Long> {
+	
     List<Transaction> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+    
     List<Transaction> findByUserIdAndTypeOrderByCreatedAtDesc(Long userId, String type);
 }

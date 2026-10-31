@@ -9,6 +9,4 @@ public record CreateTransactionRequestDto(
         Long userId,
         BigDecimal amount,
         TransactionType type
-		) {
-
-}
+) {}

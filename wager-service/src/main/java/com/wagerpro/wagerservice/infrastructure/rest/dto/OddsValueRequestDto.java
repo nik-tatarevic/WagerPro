@@ -7,8 +7,7 @@ import jakarta.validation.constraints.NotNull;
 public record OddsValueRequestDto(
 		@NotNull
 		Long oddId,
+		
 		@NotNull
 		BigDecimal oddValue
-		) {
-
-}
+) {}

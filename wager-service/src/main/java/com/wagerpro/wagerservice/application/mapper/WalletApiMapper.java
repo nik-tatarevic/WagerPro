@@ -8,7 +8,6 @@ import com.wagerpro.wagerservice.domain.model.WalletDomain;
 @Mapper(componentModel = "spring")
 public interface WalletApiMapper {
 	
-
 	WalletResponseDto toResponseDto(WalletDomain walletDomain);
 
 }

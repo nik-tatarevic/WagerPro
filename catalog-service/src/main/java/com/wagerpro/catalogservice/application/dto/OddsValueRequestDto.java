@@ -9,6 +9,4 @@ public record OddsValueRequestDto(
 		Long oddId,
 		@NotNull
 		BigDecimal oddValue
-		) {
-
-}
+) {}

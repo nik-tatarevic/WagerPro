@@ -38,7 +38,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		// TODO izbrisi Bearer odavde
 		String header = "Bearer " + request.getHeader(HttpHeaders.AUTHORIZATION);
 
 		if (header == null || !header.startsWith("Bearer ")) {

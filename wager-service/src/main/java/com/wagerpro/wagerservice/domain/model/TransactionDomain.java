@@ -12,5 +12,4 @@ public record TransactionDomain(
         BigDecimal amount,
         TransactionType type,
         LocalDateTime createdAt
-) {
-}
+) {}

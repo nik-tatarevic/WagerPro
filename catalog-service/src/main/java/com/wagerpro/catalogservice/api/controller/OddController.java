@@ -44,7 +44,6 @@ public class OddController {
 		return new ResponseEntity<>(savedOdd, HttpStatus.OK);
 	}
 
-	// TODO
 	// DEACTIVETE() 
 	// ACTIVATE()
 	

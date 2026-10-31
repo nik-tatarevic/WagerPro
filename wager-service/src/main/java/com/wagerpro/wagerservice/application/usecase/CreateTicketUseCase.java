@@ -40,9 +40,5 @@ public class CreateTicketUseCase {
 		
 		return savedTicket;
 	}
-	
-	
-	
-	
 
 }

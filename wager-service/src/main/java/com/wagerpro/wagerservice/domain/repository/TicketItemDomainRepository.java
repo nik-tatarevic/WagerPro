@@ -9,10 +9,14 @@ import com.wagerpro.wagerservice.infrastructure.persistence.enums.TicketItemStat
 public interface TicketItemDomainRepository {
 	
 	TicketItemDomain save(TicketItemDomain ticketItemDomain);
+	
     Optional<TicketItemDomain> findById(Long id);
+    
     List<TicketItemDomain> findByStatus(TicketItemStatus status);
+    
     List<TicketItemDomain> findByMatchId(Long matchId);
+    
 	List<TicketItemDomain> findPendingByMatchId(Long matchId);
+	
 	void saveAll(List<TicketItemDomain> updatedItems);
-
 }

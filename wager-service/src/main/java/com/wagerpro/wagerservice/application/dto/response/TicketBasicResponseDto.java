@@ -13,6 +13,4 @@ public record TicketBasicResponseDto(
 		TicketType type,
 		LocalDateTime createdAt,
 		TicketStatus status
-		) {
-
-}
+) {}

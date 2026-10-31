@@ -4,17 +4,29 @@ spring:
 
     datasource:
         url: jdbc:postgresql://localhost:5432/catalog_db
-        username: postgres
-        password: password
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
         driver-class-name: org.postgresql.Driver
 
     jpa:
         hibernate:
             ddl-auto: validate
+        open-in-view: false
         show-sql: true
+        properties:
+            hibernate:
+                jdbc:
+                    time_zone: UTC
 
     flyway:
-        enabled: true
+        enabled: false   # TODO change later
+        locations: classpath:db/migration
+
+    kafka:
+        bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+        producer:
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 server:
     port: 8082
@@ -25,8 +37,30 @@ security:
         secret: ${JWT_SECRET:V2FnZXJQcm9EZXZlbG9wbWVudFNlY3JldEtleUNoYW5nZU1lMjAyNg==}
         expiration-ms: ${JWT_EXPIRATION_MS:10800000}
 
+app:
+    kafka:
+        enabled: true
+        topic:
+            match-status-changed: match-status-changed
+
 management:
     endpoints:
         web:
             exposure:
                 include: health,info
+    endpoint:
+        health:
+            show-details: never
+    info:
+        env:
+            enabled: false
+
+info:
+    app:
+        name: WagerPro Catalog Service
+        description: All about matches and odds
+        version: 0.0.1-SNAPSHOT
+
+logging:
+    level:
+        com.wagerpro.userservice: DEBUG

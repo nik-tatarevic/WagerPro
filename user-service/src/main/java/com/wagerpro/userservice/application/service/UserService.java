@@ -69,7 +69,6 @@ public class UserService {
         String identifier = userValidation.normalizeAndValidateIdentifier(request.identifier());
         UserDomain user = userRepository.findByUsernameOrEmail(identifier).orElse(null);
 
-        // Verify the password even for disabled accounts, so the response is generic.
         boolean passwordMatches = user != null
                 && passwordEncoder.matches(request.password(), user.hashedPassword());
         if (user == null || !user.enabled() || !passwordMatches) {

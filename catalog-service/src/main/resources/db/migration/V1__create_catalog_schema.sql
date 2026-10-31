@@ -60,6 +60,18 @@ CREATE TABLE odds (
     CONSTRAINT chk_odd_value CHECK (odd_value >= 1.01)
 );
 
+CREATE TABLE outbox_events (
+    id UUID PRIMARY KEY,
+    aggregate_id VARCHAR(255) NOT NULL,
+    event_type VARCHAR(255) NOT NULL DEFAULT 'MatchStatusChangedEvent',
+    payload TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    processed BOOLEAN DEFAULT FALSE
+);
+
+
+CREATE INDEX idx_outbox_unprocessed ON outbox_events (processed, created_at) WHERE processed = FALSE;
+
 CREATE INDEX idx_matches_status_start_time ON matches(status, start_time);
 CREATE INDEX idx_matches_league ON matches(league_id);
 CREATE INDEX idx_odds_match_active ON odds(match_id, is_active);

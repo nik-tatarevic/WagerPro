@@ -10,6 +10,4 @@ public record UserResponseDto(
         boolean enabled,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
-        ) {
-
-}
+) {}

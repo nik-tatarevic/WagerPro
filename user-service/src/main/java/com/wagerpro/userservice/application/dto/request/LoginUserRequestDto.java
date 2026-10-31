@@ -13,5 +13,4 @@ public record LoginUserRequestDto(
         @Size(max = 72, message = "Password must not exceed 72 characters")
         String password
 		
-		// TODO zasto bas 72? 
 ) {}

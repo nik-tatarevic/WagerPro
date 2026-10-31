@@ -9,13 +9,10 @@ import com.wagerpro.catalogservice.domain.exception.InvalidMatchStartTime;
 @Component
 public class MatchValidation {
 	
-//	public void validateStartTime(LocalDateTime startTime) { 
-//		if (startTime.compareTo(LocalDateTime.now()) <= 0) {
-//			throw new InvalidMatchStartTime("The date and time must be in the future.");
-//		}
-//	}
+	public void validateStartTime(LocalDateTime startTime) { 
+		if (startTime.compareTo(LocalDateTime.now()) <= 0) {
+			throw new InvalidMatchStartTime("The date and time must be in the future.");
+		}
+	}
 	
-	
-	
-
 }

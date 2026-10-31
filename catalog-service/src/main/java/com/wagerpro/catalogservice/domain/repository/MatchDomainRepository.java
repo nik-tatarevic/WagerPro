@@ -6,9 +6,8 @@ import java.util.Optional;
 import org.springframework.data.repository.query.Param;
 
 import com.wagerpro.catalogservice.domain.model.MatchDomain;
-import com.wagerpro.catalogservice.infrastructure.persistence.enums.MarketDefinitionType;
-import com.wagerpro.catalogservice.infrastructure.persistence.projection.MatchOddsSummaryProjection;
 import com.wagerpro.catalogservice.infrastructure.persistence.projection.MatchDetailsProjection;
+import com.wagerpro.catalogservice.infrastructure.persistence.projection.MatchOddsSummaryProjection;
 import com.wagerpro.catalogservice.infrastructure.persistence.projection.UpcomingMatchesProjection;
 
 public interface MatchDomainRepository {

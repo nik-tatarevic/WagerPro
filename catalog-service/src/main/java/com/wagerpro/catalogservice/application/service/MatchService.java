@@ -18,7 +18,7 @@ import com.wagerpro.catalogservice.application.dto.response.MatchOddsSummaryResp
 import com.wagerpro.catalogservice.application.dto.response.MatchResponseDto;
 import com.wagerpro.catalogservice.application.dto.response.UpcomingMatchesResponseDto;
 import com.wagerpro.catalogservice.application.mapper.MatchApiMapper;
-import com.wagerpro.catalogservice.domain.exception.MatchNotFoundException;
+import com.wagerpro.catalogservice.application.usecase.UpdateMatchStatusUseCase;
 import com.wagerpro.catalogservice.domain.model.MatchDomain;
 import com.wagerpro.catalogservice.domain.repository.MatchDomainRepository;
 import com.wagerpro.catalogservice.domain.validation.MatchValidation;
@@ -36,11 +36,12 @@ public class MatchService {
 	private final MatchDomainRepository matchDomainRepository;
 	private final MatchApiMapper mapper;
 	private final MatchValidation matchValidation;
+	private final UpdateMatchStatusUseCase updateMatchStatusUseCase;
 
 	@Transactional
 //	@CacheEvict(value = "upcomingMatches", key = "#sportName")
 	public MatchResponseDto save(@Valid @RequestBody CreateMatchRequestDto matchRequestDto) {
-//		matchValidation.validateStartTime(matchRequestDto.startTime());
+		matchValidation.validateStartTime(matchRequestDto.startTime());
 		MatchDomain matchDomain = matchDomainRepository.save(mapper.toDomain(matchRequestDto));
 		return mapper.toResponseWithLeagueId(matchDomain);
 	}
@@ -69,6 +70,7 @@ public class MatchService {
 	@Transactional
 	public List<UpcomingMatchesResponseDto> findUpcomingMatchesBySportAndHours(
 			String sportName, int hours, int page, int size) {
+		
 		// in most cases, we retrieve the data from the cache
 		List<UpcomingMatchesResponseDto> upcomingMatchesByHours = 
 				this.findUpcomingMatchesBySport(sportName).stream()
@@ -86,16 +88,16 @@ public class MatchService {
 	    return upcomingMatchesByHours.subList(start, end);
 	}
 	
-	@Transactional
-    public MatchResponseDto updateMatchStatus(UpdateMatchStatusRequestDto request) {
-        MatchDomain match = matchDomainRepository.findById(request.matchId())
-                .orElseThrow(() -> new MatchNotFoundException("Match not found with id: " + request.matchId()));
-        
-        MatchDomain changeStatus = match.changeStatus(request.status());
-        MatchDomain saved = matchDomainRepository.save(changeStatus);
-        
-		return mapper.toResponseWithLeagueId(saved);
+	public MatchResponseDto updateStatus(UpdateMatchStatusRequestDto request) {
+		MatchDomain savedMatch = updateMatchStatusUseCase.execute(request);
+		return mapper.toResponseWithLeagueId(savedMatch);
     }
+	
+	@Transactional
+	public List<MatchDetailsResponseDto> findDetailsForTicket(List<Long> matchIds) {
+		List<MatchDetailsProjection> detailsForTicket = matchDomainRepository.findDetailsForTicket(matchIds);
+		return mapper.toMatchDetailsResponseDtos(detailsForTicket);
+	}
 	
 	private List<UpcomingMatchesResponseDto> mapToUpcomingMatchesResponseDto(
 	        Map<Long, List<UpcomingMatchesProjection>> groupedByMatch) {
@@ -119,20 +121,6 @@ public class MatchService {
 	                );
 	            })
 	            .toList();
-	}
-
-	public void updateScheduledMatchesFromUpcomingToLive() {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Transactional
-	public List<MatchDetailsResponseDto> findDetailsForTicket(List<Long> matchIds) {
-		// svakako get user iz context TODO
-		List<MatchDetailsProjection> detailsForTicket = matchDomainRepository.findDetailsForTicket(matchIds);
-		
-		return mapper.toMatchDetailsResponseDtos(detailsForTicket);
-		
 	}
 	
 }

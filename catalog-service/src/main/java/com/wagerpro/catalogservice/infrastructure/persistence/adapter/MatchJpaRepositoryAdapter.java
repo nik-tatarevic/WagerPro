@@ -43,7 +43,6 @@ public class MatchJpaRepositoryAdapter implements MatchDomainRepository {
 	@Override
     public Optional<MatchDomain> findById(Long id) {
         return matchJpaRepository.findById(id).map(mapper::toDomainWithLeagueId);
-//        return matchJpaRepository.findById(id).map(mapper::toDomain);
     }
 
 	@Override
@@ -74,6 +73,5 @@ public class MatchJpaRepositoryAdapter implements MatchDomainRepository {
 	public List<MatchDetailsProjection> findDetailsForTicket(List<Long> userIds) {
 		return matchJpaRepository.findDetailsForTicket(userIds);
 	}
-
 
 }

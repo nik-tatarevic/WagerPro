@@ -7,6 +7,8 @@ import com.wagerpro.wagerservice.infrastructure.persistence.entity.Transaction;
 
 @Mapper(componentModel = "spring")
 public interface TransactionPersistenceMapper {
+	
 	Transaction toEntity(TransactionDomain transactionDomain);
+	
 	TransactionDomain toDomain(Transaction transaction);
 }

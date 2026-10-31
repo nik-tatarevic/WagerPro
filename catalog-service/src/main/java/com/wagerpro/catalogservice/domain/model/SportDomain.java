@@ -1,4 +1,6 @@
 package com.wagerpro.catalogservice.domain.model;
 
-public record SportDomain(Long id, String name) {
-}
+public record SportDomain(
+		Long id, 
+		String name
+) {}

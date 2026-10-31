@@ -10,5 +10,4 @@ public interface TransactionApiMapper {
 
 	TransactionDomain toDomain(CreateTransactionRequestDto request);
 	
-	
 }

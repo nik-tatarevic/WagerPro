@@ -66,7 +66,4 @@ public class OddJpaRepositoryAdapter implements OddDomainRepository {
 		return mapper.toDomain(Odd);
 	}
 
-	
-	
-
 }

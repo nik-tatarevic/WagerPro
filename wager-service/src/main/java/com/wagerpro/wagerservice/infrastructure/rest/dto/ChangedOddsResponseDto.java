@@ -6,6 +6,4 @@ public record ChangedOddsResponseDto(
 		Long oddId,
 		BigDecimal oddValue,
 		Boolean isActive
-		) {
-
-}
+) {}

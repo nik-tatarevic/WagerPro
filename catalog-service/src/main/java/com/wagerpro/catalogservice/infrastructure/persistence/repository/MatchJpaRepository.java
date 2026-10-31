@@ -20,7 +20,6 @@ public interface MatchJpaRepository extends JpaRepository<Match, Long> {
             JOIN market_definitions md on md.id = o.market_definition_id
             WHERE o.match_id = :matchId AND o.is_active = true
             """, nativeQuery = true)
-//	join matches m on m.id = odd.match_id
     List<MatchOddsSummaryProjection> findOddsByMatchId(@Param("matchId") Long matchId);
     
 	@Query(value = """
@@ -44,7 +43,6 @@ public interface MatchJpaRepository extends JpaRepository<Match, Long> {
     List<UpcomingMatchesProjection> findBasicOddsForMatchIds(@Param("matchIds") List<Long> matchIds);
     
     List<Match> findByStatusAndStartTimeLessThanEqual(String status, LocalDateTime time);
-
     
 	@Query(value = """
 	    select m.id from matches m
@@ -54,7 +52,6 @@ public interface MatchJpaRepository extends JpaRepository<Match, Long> {
 	    ORDER BY m.start_time ASC
 	""", nativeQuery = true)
 	List<Long> findUpcomingMatchIdsBySport(@Param("sportName") String sportName);
-	
 	
 	@Query("""
 		    select m.id as matchId, 
@@ -70,6 +67,5 @@ public interface MatchJpaRepository extends JpaRepository<Match, Long> {
 		    where m.id in :matchIds
 		    """)
 	List<MatchDetailsProjection> findDetailsForTicket(@Param("matchIds") List<Long> matchIds);
-	
 	
 }

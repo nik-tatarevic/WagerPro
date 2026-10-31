@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TicketSettlementService {
 
-	private final WalletService walletService;
 	private final DepositMoneyUseCase depositMoneyUseCase;
 	private final TicketDomainRepository ticketDomainRepository;
 	
@@ -39,7 +38,7 @@ public class TicketSettlementService {
 	        return current.calculateStatus();
 	    })
 		.toList();
-
+	    
 	    ticketDomainRepository.saveAll(processedTickets);
 	    
 	    settleTicket( 
@@ -47,7 +46,6 @@ public class TicketSettlementService {
 		    		.filter(ticket -> ticket.status() == TicketStatus.WON)
 		    		.toList()
 		);
-	    
 	}
 	
 	@Transactional

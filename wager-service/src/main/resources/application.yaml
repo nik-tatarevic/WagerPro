@@ -19,24 +19,23 @@ spring:
                     time_zone: UTC
 
     flyway:
-        enabled: true
+        enabled: false   # TODO - change later
         locations: classpath:db/migration
 
     kafka:
-        listener:
-            auto-startup: false
         bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-        producer:
-            group-id: wager-service-group
-            acks: all
-            key-serializer: org.apache.kafka.common.serialization.StringSerializer
-            value-serializer: org.apache.kafka.common.serialization.StringSerializer
         consumer:
-            group-id: wager-service-group
-            acks: all
-            key-serializer: org.apache.kafka.common.serialization.StringSerializer
-            value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
+            group-id: wager-service
+            auto-offset-reset: earliest
+            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            properties:
+                spring:
+                    json:
+                        use.type.headers: false
+                        trusted:
+                            packages: com.wagerpro.wagerservice.infrastructure.kafka.event
+                        value.default.type: com.wagerpro.wagerservice.infrastructure.kafka.event.MatchStatusChangedEvent
 server:
     port: 8083
 
@@ -48,7 +47,9 @@ security:
 
 app:
     kafka:
-        enabled: ${KAFKA_ENABLED:false}
+        #enabled: ${KAFKA_ENABLED:false}
+        topic:
+            match-status-changed: match-status-changed
 
 management:
     endpoints:
@@ -65,7 +66,7 @@ management:
 info:
     app:
         name: WagerPro Wager Service
-        description: User management and authentication microservice
+        description: wager management, bets and transactions
         version: 0.0.1-SNAPSHOT
 
 logging:

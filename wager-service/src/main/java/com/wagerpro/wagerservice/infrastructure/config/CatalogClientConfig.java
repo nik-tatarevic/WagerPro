@@ -26,8 +26,7 @@ public class CatalogClientConfig {
 	                        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
 	                if (attributes != null) {
-	                    String authorization = attributes.getRequest()
-	                            .getHeader(HttpHeaders.AUTHORIZATION);
+	                    String authorization = attributes.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
 
 	                    if (authorization != null) {
 	                        request.getHeaders().set(HttpHeaders.AUTHORIZATION, authorization);
@@ -35,8 +34,8 @@ public class CatalogClientConfig {
 	                }
 
 	                return execution.execute(request, body);
-	            })
-	            .build();
+	                
+	            }).build();
 
 	    HttpServiceProxyFactory factory =
 	            HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient))

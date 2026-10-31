@@ -6,8 +6,14 @@ import com.wagerpro.wagerservice.domain.exception.InsufficientBalanceException;
 import com.wagerpro.wagerservice.domain.exception.WalletBlockedException;
 import com.wagerpro.wagerservice.infrastructure.persistence.enums.WalletStatus;
 
-public record WalletDomain(Long id, Long userId, BigDecimal balance, String currency, WalletStatus status,
-		Long version) {
+public record WalletDomain(
+		Long id, 
+		Long userId, 
+		BigDecimal balance, 
+		String currency, 
+		WalletStatus status,
+		Long version
+) {
 
 	public WalletDomain deposit(BigDecimal amount) {
 		ensureBlockStatus();

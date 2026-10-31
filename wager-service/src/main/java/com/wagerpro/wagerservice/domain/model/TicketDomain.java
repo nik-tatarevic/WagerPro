@@ -9,8 +9,6 @@ import com.wagerpro.wagerservice.infrastructure.persistence.enums.TicketItemStat
 import com.wagerpro.wagerservice.infrastructure.persistence.enums.TicketStatus;
 import com.wagerpro.wagerservice.infrastructure.persistence.enums.TicketType;
 
-import jakarta.validation.constraints.NotNull;
-
 public record TicketDomain(
 		Long id, 
 		Long userId, 
@@ -68,18 +66,8 @@ public record TicketDomain(
 		long countCancelled = items().stream().filter(x -> x.status() == TicketItemStatus.CANCELLED).count();
 		
 		boolean allWonOrCancelled = countLost == 0 && (countWon + countCancelled) == totalItems;
-		// cashback for all tickets with one miss and totalOdd 25+
-		// TODO
-//		PromotionStrategy
-//		CashbackPromotionStrategy
-//		NoPromotionStrategy
-//		PromotionService
-//		i onda
-//		PromotionService
-//		↓
-//		returns
-//		Optional<Promotion>
 		
+		// TODO change the place of cashback promotion (strategy)
 		boolean cashbackPromotion = countLost == 1 && (countWon + countCancelled) == totalItems - 1 
 				&& (totalOdds().compareTo(new BigDecimal(25)) >= 0);
 	

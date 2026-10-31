@@ -13,9 +13,8 @@ public record ItemOddDetailsDto(
 		Long oddId,
 		BigDecimal oddValue,
 		MarketType marketType
-		) {
+) {
 
-	
 	public ItemOddDetailsDto setTicketId(Long savedTicketId) {
 		return new ItemOddDetailsDto(savedTicketId, matchId, oddId, oddValue, marketType);
 	}

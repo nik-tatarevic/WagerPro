@@ -7,7 +7,6 @@ import java.util.List;
 import com.wagerpro.wagerservice.infrastructure.persistence.enums.TicketType;
 
 public record TicketDetailsResponseDto(
-		
 		Long ticketId,
 		TicketType type,
 		LocalDateTime createdAt,
@@ -15,7 +14,4 @@ public record TicketDetailsResponseDto(
 		BigDecimal totalOdds,
 		BigDecimal potentialPayout,
 		List<TicketItemDto> items
-		
-) {
-
-}
+) {}

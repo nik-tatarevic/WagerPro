@@ -39,7 +39,7 @@ public class MatchController {
 	
 	@PatchMapping("/update-status")
 	public ResponseEntity<MatchResponseDto> updateMatchStatus(@Valid @RequestBody UpdateMatchStatusRequestDto request) {
-		MatchResponseDto match = matchService.updateMatchStatus(request);
+		MatchResponseDto match = matchService.updateStatus(request);
 		return ResponseEntity.ok(match);
 	}
 	
@@ -72,6 +72,5 @@ public class MatchController {
 		List<MatchDetailsResponseDto> matchWithOdds = matchService.findDetailsForTicket(matchIds);
 		return ResponseEntity.ok(matchWithOdds);
 	}
-	
 	
 }

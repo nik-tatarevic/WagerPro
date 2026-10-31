@@ -7,6 +7,19 @@ import com.wagerpro.wagerservice.infrastructure.persistence.entity.TicketItem;
 
 @Mapper(componentModel = "spring")
 public interface TicketItemPersistenceMapper {
+	
 	TicketItem toEntity(TicketItemDomain ticketItemDomain);
-	TicketItemDomain toDomain(TicketItem ticketItem);
+	
+	default TicketItemDomain toDomain(TicketItem entity) {
+	    return new TicketItemDomain(
+	        entity.getId(),
+	        entity.getTicket() != null ? entity.getTicket().getId() : null,
+	        entity.getMatchId(),
+	        entity.getOddId(),
+	        entity.getOddValue(),
+	        entity.getMarketType(),
+	        entity.getStatus()
+	    );
+	}
+	
 }

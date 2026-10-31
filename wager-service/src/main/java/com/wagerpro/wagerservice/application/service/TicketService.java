@@ -27,8 +27,7 @@ import com.wagerpro.wagerservice.domain.repository.TicketDomainRepository;
 import com.wagerpro.wagerservice.domain.repository.TicketItemDomainRepository;
 import com.wagerpro.wagerservice.domain.strategy.MarketEvaluatorStrategy;
 import com.wagerpro.wagerservice.infrastructure.config.SecurityUtils;
-import com.wagerpro.wagerservice.infrastructure.kafka.MatchCancelledEvent;
-import com.wagerpro.wagerservice.infrastructure.kafka.MatchFinishedEvent;
+import com.wagerpro.wagerservice.infrastructure.kafka.event.MatchStatusChangedEvent;
 import com.wagerpro.wagerservice.infrastructure.persistence.enums.TicketUpdateMode;
 import com.wagerpro.wagerservice.infrastructure.rest.CatalogServiceClient;
 import com.wagerpro.wagerservice.infrastructure.rest.dto.ChangedOddsResponseDto;
@@ -50,8 +49,9 @@ public class TicketService {
 	private final CatalogServiceClient catalogServiceClient;
 	
 	@Transactional
-	public void processMatchFinished(MatchFinishedEvent event) {
-		List<TicketItemDomain> pendingItems = ticketItemDomainRepository.findPendingByMatchId(event.matchId());
+	public void processMatchFinished(MatchStatusChangedEvent event) {
+		List<TicketItemDomain> pendingItems = 
+				ticketItemDomainRepository.findPendingByMatchId(Long.valueOf(event.matchId()));
 		
 		Set<Long> affectedTicketIds = new HashSet<>();
 		List<TicketItemDomain> itemsUpdatedStatus = pendingItems.stream().map(item -> {
@@ -70,7 +70,7 @@ public class TicketService {
 	}
 	
 	@Transactional
-	public void processMatchCancelled(MatchCancelledEvent event) {
+	public void processMatchCancelled(MatchStatusChangedEvent event) {
 		List<TicketItemDomain> pendingItems = ticketItemDomainRepository.findPendingByMatchId(event.matchId());
 		
 		Set<Long> affectedTicketIds = new HashSet<>();
@@ -82,8 +82,6 @@ public class TicketService {
 		ticketItemDomainRepository.saveAll(itemsUpdatedStatus);
 		
 		ticketSettlementService.updateAndSettleTickets(affectedTicketIds, TicketUpdateMode.CANCELLED);
-		
-//		updateAndSettleTickets(affectedTicketIds, TicketUpdateMode.CANCELLED);
 	}
 	
 	@Transactional(readOnly = true)
@@ -155,6 +153,5 @@ public class TicketService {
 		TicketDomain savedTicket = createTicketUseCase.execute(request, userId);
 		return mapper.toTicketBasicResponse(savedTicket);
 	}
-	
 	
 }

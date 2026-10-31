@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 
 import com.wagerpro.wagerservice.application.dto.response.WalletResponseDto;
-import com.wagerpro.wagerservice.application.mapper.TransactionApiMapper;
 import com.wagerpro.wagerservice.application.mapper.WalletApiMapper;
 import com.wagerpro.wagerservice.domain.exception.AmountException;
 import com.wagerpro.wagerservice.domain.exception.WalletNotFoundException;
@@ -25,8 +24,6 @@ public class WithdrawMoneyUseCase {
 	private final WalletDomainRepository walletDomainRepository;
 	private final TransactionDomainRepository transactionDomainRepository;
 	private final WalletApiMapper walletApiMapper;
-	private final TransactionApiMapper transactionApiMapper;
-	
 	
 	@Transactional
 	public WalletResponseDto execute(Long userId, BigDecimal amount, TransactionType transactionType) {
@@ -40,12 +37,11 @@ public class WithdrawMoneyUseCase {
 		WalletDomain savedWallet = walletDomainRepository.save(walletDomain.withdraw(amount));
 
 		transactionDomainRepository.save(
-				new TransactionDomain(null, savedWallet.id(), userId, 
-									  amount, transactionType, null));
+				new TransactionDomain(null, savedWallet.id(), 
+									  userId, amount, transactionType, 
+									  null));
 
 		return walletApiMapper.toResponseDto(savedWallet);
 	}
-	
-	
 
 }

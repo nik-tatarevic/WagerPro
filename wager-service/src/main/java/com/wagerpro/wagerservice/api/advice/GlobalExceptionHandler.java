@@ -18,7 +18,6 @@ import com.wagerpro.wagerservice.domain.exception.TicketNotFoundException;
 import com.wagerpro.wagerservice.domain.exception.WalletNotFoundException;
 import com.wagerpro.wagerservice.infrastructure.rest.dto.ChangedOddsResponseDto;
 
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -34,11 +33,6 @@ public class GlobalExceptionHandler {
     	return problem(HttpStatus.NOT_FOUND, "Wallet not found", exception.getMessage());
     }
 
-    //    @ExceptionHandler(InvalidOddValueException.class)
-//    public ResponseEntity<ProblemDetail> handleInvalidCredentials(InvalidOddValueException exception) {
-//        return problem(HttpStatus.BAD_REQUEST, "Invalid odd data", exception.getMessage());
-//    }
-    
     @ExceptionHandler(OddsChangedException.class)
     public ResponseEntity<List<ChangedOddsResponseDto>> handle(OddsChangedException ex) {
         return ResponseEntity

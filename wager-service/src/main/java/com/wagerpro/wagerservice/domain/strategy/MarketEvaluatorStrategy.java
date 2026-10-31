@@ -7,5 +7,4 @@ public interface MarketEvaluatorStrategy {
 	MarketType supports();
 
     boolean evaluate(Integer homeGoals, Integer awayGoals);
-
 }

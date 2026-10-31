@@ -12,5 +12,4 @@ public record CreateWithdrawRequestDto(
 		@NotNull
 		@Positive
 		BigDecimal amount
-		
 ){}

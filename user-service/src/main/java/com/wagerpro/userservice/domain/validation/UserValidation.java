@@ -17,7 +17,7 @@ public class UserValidation {
         if (username == null) {
             throw new InvalidUserDataException("Username is required.");
         }
-        // TODO cekiraj Locale.ROOT
+
         String normalized = username.strip().toLowerCase(Locale.ROOT);
         if (!USERNAME_PATTERN.matcher(normalized).matches()) {
             throw new InvalidUserDataException(
@@ -53,5 +53,5 @@ public class UserValidation {
         }
     }
     
-    // TODO napravi validaciju gadjanja starog i novog passworda, ako stignes
+    // validation - compare old and new password
 }

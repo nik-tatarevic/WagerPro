@@ -14,9 +14,8 @@ import com.wagerpro.wagerservice.infrastructure.persistence.entity.Ticket;
 
 @Repository
 public interface TicketJpaRepository extends JpaRepository<Ticket, Long> {
-	Page<Ticket> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 	
-//	Page<Ticket> findByUserIdAOrderByCreatedAtDesc(Long userId);
+	Page<Ticket> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 	
 	List<Ticket> findByUserIdAndStatusOrderByCreatedAtDesc(Long userId, String status);
 	

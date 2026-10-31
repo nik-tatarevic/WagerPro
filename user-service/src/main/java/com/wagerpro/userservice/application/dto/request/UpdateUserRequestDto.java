@@ -17,8 +17,4 @@ public record UpdateUserRequestDto(
 		@Size(min = 8, max = 72, message = "New password must contain 8-72 characters")
 		String newPassword
 		
-		// proveri da li je okej staviti @Nullable na sva 3
-		
-		) {
-
-}
+) {}

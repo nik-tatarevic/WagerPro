@@ -42,5 +42,4 @@ public class DepositMoneyUseCase {
 		return walletApiMapper.toResponseDto(savedWallet);
 	}
 
-
 }

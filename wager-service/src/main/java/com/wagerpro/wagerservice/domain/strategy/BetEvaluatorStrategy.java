@@ -10,5 +10,4 @@ public interface BetEvaluatorStrategy {
 	TicketType supports();
 
     boolean evaluate(List<TicketItemDomain> ticketItemDomains);
-
 }

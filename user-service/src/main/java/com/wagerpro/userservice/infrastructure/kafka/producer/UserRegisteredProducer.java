@@ -64,6 +64,7 @@ public class UserRegisteredProducer implements UserRegisteredPublisher {
                     });
         } catch (RuntimeException exception) {
             // Registration has already committed; a broker outage must not turn it into a misleading HTTP 500.
+        	// TODO add exception
             log.error("Could not serialize or send UserRegisteredEvent for userId={}", user.id(), exception);
         }
     }

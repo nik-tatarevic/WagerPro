@@ -60,7 +60,5 @@ public class User {
     void preUpdate() {
         updatedAt = LocalDateTime.now(Clock.systemUTC());
     }
-
-    // TODO preUpdate, prePersist, protected User
     
 }

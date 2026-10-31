@@ -17,6 +17,4 @@ public record TicketItemDto(
 		 MarketType marketType,
 		 BigDecimal oddValue,
 		 TicketItemStatus ticketItemStatus
-) {
-
-}
+) {}

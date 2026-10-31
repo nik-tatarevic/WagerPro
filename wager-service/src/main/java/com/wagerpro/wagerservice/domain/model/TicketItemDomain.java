@@ -1,7 +1,6 @@
 package com.wagerpro.wagerservice.domain.model;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import com.wagerpro.wagerservice.domain.exception.TicketStatusException;
 import com.wagerpro.wagerservice.infrastructure.persistence.enums.MarketType;
@@ -40,7 +39,6 @@ public record TicketItemDomain(
 		if (status != TicketItemStatus.PENDING) {
 			throw new TicketStatusException("Only PENDING ticket can change status.");
 		}
-
 	}
 
 	private TicketItemDomain passStatus(TicketItemStatus status) {
@@ -49,7 +47,6 @@ public record TicketItemDomain(
 		}
 
 		return new TicketItemDomain(id, ticketId, matchId, oddId, oddValue, marketType, status);
-
 	}
 
 }

@@ -18,8 +18,6 @@ import jakarta.servlet.http.HttpServletResponse;
 @EnableMethodSecurity
 public class SecurityConfig {
 	
-	// TODO da li iko ikad pokrece ovu metodu ili ona stoji u Beanu i zna Spring sta treba da se radi
-
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http
@@ -38,4 +36,5 @@ public class SecurityConfig {
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+    
 }

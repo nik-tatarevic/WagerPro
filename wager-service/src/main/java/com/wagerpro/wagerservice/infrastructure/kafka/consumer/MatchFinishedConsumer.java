@@ -4,24 +4,36 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import com.wagerpro.wagerservice.application.service.TicketService;
-import com.wagerpro.wagerservice.infrastructure.kafka.MatchCancelledEvent;
-import com.wagerpro.wagerservice.infrastructure.kafka.MatchFinishedEvent;
+import com.wagerpro.wagerservice.infrastructure.kafka.event.MatchStatusChangedEvent;
 
 import lombok.RequiredArgsConstructor;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
 public class MatchFinishedConsumer {
 
 	private final TicketService ticketService;
-
-	@KafkaListener(topics = "match-finished")
-	public void consume(MatchFinishedEvent event) {
-		ticketService.processMatchFinished(event);
-	}
+	private final ObjectMapper objectMapper;
 	
-	@KafkaListener(topics = "match-cancelled")
-	public void consume(MatchCancelledEvent event) {
-		ticketService.processMatchCancelled(event);
+    @KafkaListener(
+		topics = "${app.kafka.topic.match-status-changed}",
+		groupId = "wager-service"
+//		groupId = "${spring.kafka.consumer.group-id}"
+	)
+	public void consume(String payload) {
+	    try {
+	        MatchStatusChangedEvent event = objectMapper.readValue(payload, MatchStatusChangedEvent.class);
+	        
+	        switch (event.status()) {
+		        case FINISHED -> ticketService.processMatchFinished(event);
+		        case CANCELLED ->ticketService.processMatchCancelled(event);
+		        default -> { System.out.println("IN PROGRESS..."); }
+	    	}	
+	
+	    } catch (Exception e) {
+	    	// TODO exception kafka consumer
+	    }
 	}
+    
 }

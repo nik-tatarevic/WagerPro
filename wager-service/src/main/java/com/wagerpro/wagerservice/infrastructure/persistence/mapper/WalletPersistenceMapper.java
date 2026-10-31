@@ -9,6 +9,7 @@ import com.wagerpro.wagerservice.infrastructure.persistence.entity.Wallet;
 public interface WalletPersistenceMapper {
 	
 	Wallet toEntity(WalletDomain walletDomain);
+	
 	WalletDomain toDomain(Wallet wallet);
 
 }

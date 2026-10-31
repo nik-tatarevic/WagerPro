@@ -11,10 +11,11 @@ import org.springframework.kafka.config.TopicBuilder;
 @ConditionalOnProperty(prefix = "app.kafka", name = "enabled", havingValue = "true")
 public class KafkaTopicConfig {
 
-	// TODO zasto 3 partitions, 1 replicas?
     @Bean
     NewTopic userRegisteredTopic(
             @Value("${app.kafka.topics.user-registered:wagerpro.user-registered.v1}") String topicName) {
+    	
         return TopicBuilder.name(topicName).partitions(3).replicas(1).build();
     }
+    
 }

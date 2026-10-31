@@ -39,14 +39,24 @@ public class TicketJpaRepositoryAdapter implements TicketDomainRepository {
 
 	@Override
 	public List<TicketDomain> findAllById(Iterable<Long> ids) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Ticket> tickets = ticketJpaRepository.findAllById(ids);
+		return tickets.stream().map(ticket -> mapper.toDomain(ticket)).toList();
 	}
 
 	@Override
 	public void saveAll(List<TicketDomain> updatedTickets) {
-		// TODO Auto-generated method stub
-		
+		List<Ticket> tickets = updatedTickets.stream().map(domain -> {
+	        Ticket ticket = mapper.toEntity(domain);
+	        
+	        if (ticket.getItems() != null) {
+	            ticket.getItems().forEach(item -> item.setTicket(ticket));
+	        }
+	        
+	        return ticket;
+	        
+	    }).toList();
+
+		ticketJpaRepository.saveAll(tickets);
 	}
 
 	@Override

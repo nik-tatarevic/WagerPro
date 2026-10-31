@@ -68,7 +68,6 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.BAD_REQUEST, "Malformed request", "The request body is missing or malformed.");
     }
     
-    // TODO zasto API error? 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleUnexpected(Exception exception) {
         log.error("Unexpected API error", exception);

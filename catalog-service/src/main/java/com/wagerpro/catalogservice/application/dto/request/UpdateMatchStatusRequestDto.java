@@ -10,6 +10,4 @@ public record UpdateMatchStatusRequestDto(
 		
 		@NotNull(message = "Match status is required")
 	    MatchStatus status
-) {
-
-}
+) {}

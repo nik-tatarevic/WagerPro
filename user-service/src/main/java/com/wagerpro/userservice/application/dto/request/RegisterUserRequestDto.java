@@ -21,4 +21,4 @@ public record RegisterUserRequestDto(
         @Size(min = 8, max = 72, message = "Password must contain 8-72 characters")
         String password
 
-	) {}
+) {}

@@ -1,7 +1,6 @@
 package com.wagerpro.catalogservice.infrastructure.persistence.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
 
 import com.wagerpro.catalogservice.domain.model.MarketDefinitionDomain;
 import com.wagerpro.catalogservice.infrastructure.persistence.entity.MarketDefinition;

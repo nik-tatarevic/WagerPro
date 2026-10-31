@@ -50,4 +50,5 @@ public class UserJpaRepositoryAdapter implements UserDomainRepository {
     public boolean existsByEmail(String email) {
         return userJpaRepository.existsByEmailIgnoreCase(email);
     }
+    
 }

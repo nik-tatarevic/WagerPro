@@ -12,6 +12,4 @@ public record CreateDepositRequestDto(
 		@NotNull
 		@Positive
 		BigDecimal amount		
-) {
-
-}
+) {}

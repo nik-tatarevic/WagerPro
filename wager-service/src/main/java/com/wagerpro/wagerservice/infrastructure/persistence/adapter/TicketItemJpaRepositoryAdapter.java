@@ -58,16 +58,23 @@ public class TicketItemJpaRepositoryAdapter implements TicketItemDomainRepositor
 
 	@Override
 	public List<TicketItemDomain> findPendingByMatchId(Long matchId) {
-		List<TicketItem> ticketItems = ticketItemJpaRepository.findByMatchIdAndStatus(matchId, TicketItemStatus.PENDING.toString());
-		
-			
-		return null;
+		List<TicketItem> ticketItems = ticketItemJpaRepository.findByMatchIdAndStatus(matchId, TicketItemStatus.PENDING);
+		return ticketItems.stream().map(item -> mapper.toDomain(item)).toList();
 	}
 
 	@Override
 	public void saveAll(List<TicketItemDomain> updatedItems) {
-		// TODO Auto-generated method stub
+		List<TicketItem> items = updatedItems.stream().map(item -> {
+			Ticket ticket = ticketJpaRepository.getReferenceById(item.ticketId());
+			
+			TicketItem ticketItem = mapper.toEntity(item);
+			ticketItem.setTicket(ticket);
+			
+			return ticketItem;
+			
+		}).toList();
 		
+		ticketItemJpaRepository.saveAll(items);
 	}
-
+	
 }

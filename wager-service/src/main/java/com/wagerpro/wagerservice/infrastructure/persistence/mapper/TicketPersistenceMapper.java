@@ -7,10 +7,11 @@ import com.wagerpro.wagerservice.infrastructure.persistence.entity.Ticket;
 import com.wagerpro.wagerservice.infrastructure.persistence.entity.TicketItem;
 import com.wagerpro.wagerservice.infrastructure.persistence.enums.TicketItemStatus;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {TicketItemPersistenceMapper.class})
 public interface TicketPersistenceMapper {
 	
 	Ticket toEntity(TicketDomain ticketDomain);
+	
 	TicketDomain toDomain(Ticket ticket);
 	
 	default Ticket toEntity(TicketDomain domain, TicketItemPersistenceMapper itemMapper) {

@@ -10,6 +10,4 @@ public record WalletResponseDto(
 		BigDecimal balance, 
 		String currency, 
 		WalletStatus status
-		) {
-
-}
+) {}

@@ -12,7 +12,6 @@ public record OddDomain(
 		boolean isActive,
 		Long version) {
 	
-	// validation will always be triggered
 	public OddDomain {
 		validateOddValue(oddValue);
     }

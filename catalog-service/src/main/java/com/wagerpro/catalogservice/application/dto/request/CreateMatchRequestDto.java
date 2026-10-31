@@ -18,5 +18,5 @@ public record CreateMatchRequestDto (
 
         @NotNull(message = "Start time must not be null")
         @Future(message = "Start time must be in the future")
-        LocalDateTime startTime // <--- Spring automatski mapira JSON string u LocalDateTime
+        LocalDateTime startTime
 ) {}
