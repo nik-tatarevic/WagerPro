@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +32,8 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+	
+	private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
 	@Value("${security.jwt.secret}")
 	private String secret;
@@ -78,19 +82,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		} catch (io.jsonwebtoken.ExpiredJwtException ex) {
-            System.out.println("-> Greška: Token je istekao! " + ex.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         } catch (io.jsonwebtoken.security.SignatureException ex) {
-            System.out.println("-> Greška: Nevalidan potpis tokena! Proveri secret ključ. " + ex.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         } catch (io.jsonwebtoken.MalformedJwtException ex) {
-            System.out.println("-> Greška: Token je loše formatiran (malformed)! " + ex.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         } catch (JwtException ex) {
-            System.out.println("-> Opšta JWT greška: " + ex.getClass().getName() + " - " + ex.getMessage());
+        	log.error("-> Opšta JWT greška: {} - {}", ex.getClass().getName(), ex.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }

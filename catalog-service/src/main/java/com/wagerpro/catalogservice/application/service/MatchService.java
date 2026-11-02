@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,7 +41,7 @@ public class MatchService {
 	private final UpdateMatchStatusUseCase updateMatchStatusUseCase;
 
 	@Transactional
-//	@CacheEvict(value = "upcomingMatches", key = "#sportName")
+	@CacheEvict(value = "upcomingMatches", key = "#sportName")
 	public MatchResponseDto save(@Valid @RequestBody CreateMatchRequestDto matchRequestDto) {
 		matchValidation.validateStartTime(matchRequestDto.startTime());
 		MatchDomain matchDomain = matchDomainRepository.save(mapper.toDomain(matchRequestDto));
@@ -52,8 +54,8 @@ public class MatchService {
 		return allOddsByMatchId.stream().map(x -> mapper.toResponseDto(x)).toList();
 	}
 
-//	@Cacheable(value = "upcomingMatches", key = "#sport")
 	@Transactional
+	@Cacheable(value = "upcomingMatches", key = "#sportName")
 	public List<UpcomingMatchesResponseDto> findUpcomingMatchesBySport(String sportName) {
 		List<Long> matchIds = matchDomainRepository.findUpcomingMatchIdsBySport(sportName.toUpperCase().trim());
 		if (matchIds.isEmpty()) {

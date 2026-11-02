@@ -27,23 +27,26 @@ public class UpdateMatchStatusUseCase {
 	@Transactional
 	public MatchDomain execute(UpdateMatchStatusRequestDto request) {
 		MatchDomain match = matchDomainRepository.findById(request.matchId())
-                .orElseThrow(() -> new MatchNotFoundException("Match not found with id: " + request.matchId()));
+                .orElseThrow(() -> new MatchNotFoundException("Match not found with id: " + request.matchId()))
+                .changeStatus(request.status());
+		
+        MatchDomain savedMatch = matchDomainRepository.save(match);
         
-        MatchDomain savedMatch = matchDomainRepository.save(
-        		match.changeStatus(request.status())
-		);
-        
-        MatchStatusChangedEvent matchEvent = new MatchStatusChangedEvent(
-        		savedMatch.id(), match.status(), request.status(), LocalDateTime.now().toString(), 3, 2);
+        MatchStatusChangedEvent matchEvent = 
+        		new MatchStatusChangedEvent(savedMatch.id(), 
+        									match.status(), 
+        									request.status(), 
+        									LocalDateTime.now().toString(), 
+        									request.homeGoals(), 
+        									request.awayGoals());
         
         outboxEventDomainRepository.save(
-        		new OutboxEventDomain(
-	        		savedMatch.id().toString(), 
-	        		"MatchStatusChangedEvent", 
-	        		objectMapper.writeValueAsString(matchEvent),
-	        		LocalDateTime.now(),
-	        		false
-		));
+				new OutboxEventDomain(
+		    		savedMatch.id().toString(), 
+		    		"MatchStatusChangedEvent", 
+		    		objectMapper.writeValueAsString(matchEvent),
+		    		LocalDateTime.now(),
+		    		false));
         
 		return savedMatch;
 	}

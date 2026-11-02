@@ -2,8 +2,10 @@ package com.wagerpro.wagerservice.infrastructure.persistence.adapter;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.wagerpro.wagerservice.domain.model.TicketItemDomain;
 import com.wagerpro.wagerservice.domain.repository.TicketItemDomainRepository;
@@ -66,7 +68,7 @@ public class TicketItemJpaRepositoryAdapter implements TicketItemDomainRepositor
 	public void saveAll(List<TicketItemDomain> updatedItems) {
 		List<TicketItem> items = updatedItems.stream().map(item -> {
 			Ticket ticket = ticketJpaRepository.getReferenceById(item.ticketId());
-			
+
 			TicketItem ticketItem = mapper.toEntity(item);
 			ticketItem.setTicket(ticket);
 			
@@ -75,6 +77,18 @@ public class TicketItemJpaRepositoryAdapter implements TicketItemDomainRepositor
 		}).toList();
 		
 		ticketItemJpaRepository.saveAll(items);
+	}
+	
+	@Override
+	@Transactional
+	public void updateStatus(List<Long> ids, TicketItemStatus status) {
+		ticketItemJpaRepository.updateStatusesByIds(ids, status);
+	}
+	
+	@Override
+	@Transactional
+	public void updateStatusToCancelledByIds(Set<Long> ids) {
+		ticketItemJpaRepository.updateStatusToCancelledByIds(ids);
 	}
 	
 }

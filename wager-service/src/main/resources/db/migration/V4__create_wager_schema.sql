@@ -1,9 +1,9 @@
 CREATE TABLE wallets (
     id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL UNIQUE, -- Logička veza sa user-service
+    user_id BIGINT NOT NULL UNIQUE,
     balance NUMERIC(12, 2) NOT NULL DEFAULT 0.00,
     currency VARCHAR(3) NOT NULL DEFAULT 'RSD',
-    status VARCHAR(30) NOT NULL DEFAULT 'ACTIVE', -- ACTIVE, BLOCKED, DELETED (Soft Delete)
+    status VARCHAR(30) NOT NULL DEFAULT 'ACTIVE',
     version BIGINT NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -13,10 +13,10 @@ CREATE TABLE wallets (
 
 CREATE TABLE transactions (
     id BIGSERIAL PRIMARY KEY,
-    wallet_id BIGINT, -- Može biti NULL ako se novčanik ikada obriše
-    user_id BIGINT NOT NULL, -- Čuvamo i user_id direktno radi lakšeg pretraživanja istorije!
+    wallet_id BIGINT,
+    user_id BIGINT NOT NULL,
     amount NUMERIC(10, 2) NOT NULL,
-    type VARCHAR(50) NOT NULL, -- DEPOSIT, WITHDRAWAL, BET_STAKE, WIN_PAYOUT
+    type VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_transaction_wallet FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE SET NULL
 );
@@ -28,7 +28,7 @@ CREATE TABLE tickets (
     total_stake NUMERIC(10, 2) NOT NULL,
     total_odds NUMERIC(8, 2) NOT NULL,
     potential_payout NUMERIC(10, 2) NOT NULL,
-    status VARCHAR(50) NOT NULL DEFAULT 'PENDING', -- PENDING, WON, LOST, CANCELLED
+    status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
     version BIGINT NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -38,7 +38,7 @@ CREATE TABLE ticket_items (
     ticket_id BIGINT NOT NULL,
     match_id BIGINT NOT NULL,
     odd_id BIGINT NOT NULL,
-    odd_value NUMERIC(5, 2) NOT NULL, -- Snapshot kvote u trenutku uplate
+    odd_value NUMERIC(5, 2) NOT NULL,
     market_type VARCHAR(50) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
     CONSTRAINT fk_item_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE

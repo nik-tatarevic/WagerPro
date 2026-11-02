@@ -18,8 +18,7 @@ public class MatchFinishedConsumer {
 	
     @KafkaListener(
 		topics = "${app.kafka.topic.match-status-changed}",
-		groupId = "wager-service"
-//		groupId = "${spring.kafka.consumer.group-id}"
+		groupId = "${spring.kafka.consumer.group-id}"
 	)
 	public void consume(String payload) {
 	    try {
@@ -28,7 +27,9 @@ public class MatchFinishedConsumer {
 	        switch (event.status()) {
 		        case FINISHED -> ticketService.processMatchFinished(event);
 		        case CANCELLED ->ticketService.processMatchCancelled(event);
-		        default -> { System.out.println("IN PROGRESS..."); }
+		        default -> {
+		        	
+		        }
 	    	}	
 	
 	    } catch (Exception e) {

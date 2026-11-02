@@ -1,6 +1,7 @@
 package com.wagerpro.wagerservice.application.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class TransactionService {
 
 	public void createTransaction(Long userId, BigDecimal amount, TransactionType transactionType) {
 		WalletDomain walletDomain = walletDomainRepository.findByUserId(userId)
-				.orElseThrow(() -> new WalletNotFoundException("" + userId));
+				.orElseThrow(() -> new WalletNotFoundException("Wallet not found for user id: " + userId));
 
 		TransactionDomain transactionDomain = new TransactionDomain(
 				null, 
@@ -30,7 +31,7 @@ public class TransactionService {
 				userId, 
 				amount,
 				transactionType, 
-				null);
+				LocalDateTime.now());
 		
 		transactionDomainRepository.save(transactionDomain);
 	}

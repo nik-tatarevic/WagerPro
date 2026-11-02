@@ -1,6 +1,7 @@
 package com.wagerpro.wagerservice.application.usecase;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
 
@@ -32,12 +33,18 @@ public class DepositMoneyUseCase {
 		}
 		
 		WalletDomain walletDomain = walletDomainRepository.findByUserId(userId)
-				.orElseThrow(() -> new WalletNotFoundException("" + userId));
-		WalletDomain savedWallet = walletDomainRepository.save(walletDomain.deposit(amount));
+				.orElseThrow(() -> new WalletNotFoundException("" + userId))
+				.deposit(amount);
+		
+		WalletDomain savedWallet = walletDomainRepository.save(walletDomain);
 		
 		transactionDomainRepository.save(
-				new TransactionDomain(null, savedWallet.id(), userId, 
-									  amount, transactionType, null));
+					new TransactionDomain(null, 
+										  savedWallet.id(), 
+										  userId, 
+										  amount, 
+										  transactionType, 
+										  LocalDateTime.now()));
 
 		return walletApiMapper.toResponseDto(savedWallet);
 	}

@@ -10,7 +10,7 @@ spring:
 
     jpa:
         hibernate:
-            ddl-auto: validate
+            ddl-auto: update  # TODO change later to 'validate'
         open-in-view: false
         show-sql: true
         properties:
@@ -19,7 +19,7 @@ spring:
                     time_zone: UTC
 
     flyway:
-        enabled: false   # TODO - change later
+        enabled: true   # TODO - change later
         locations: classpath:db/migration
 
     kafka:
@@ -70,8 +70,10 @@ info:
         version: 0.0.1-SNAPSHOT
 
 logging:
-    level:
-        com.wagerpro.userservice: DEBUG
+    #level:
+        #com.wagerpro.wagerservice: DEBUG
+    file:
+        name: logs/wager-pro.log
 
 services:
     user-service:

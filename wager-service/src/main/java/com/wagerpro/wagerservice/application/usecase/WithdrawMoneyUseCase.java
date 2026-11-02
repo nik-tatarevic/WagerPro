@@ -1,6 +1,7 @@
 package com.wagerpro.wagerservice.application.usecase;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
 
@@ -37,9 +38,12 @@ public class WithdrawMoneyUseCase {
 		WalletDomain savedWallet = walletDomainRepository.save(walletDomain.withdraw(amount));
 
 		transactionDomainRepository.save(
-				new TransactionDomain(null, savedWallet.id(), 
-									  userId, amount, transactionType, 
-									  null));
+				new TransactionDomain(null, 
+									  savedWallet.id(), 
+									  userId, 
+									  amount, 
+									  transactionType, 
+									  LocalDateTime.now()));
 
 		return walletApiMapper.toResponseDto(savedWallet);
 	}

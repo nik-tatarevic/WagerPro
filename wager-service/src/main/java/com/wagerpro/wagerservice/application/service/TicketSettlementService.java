@@ -1,6 +1,5 @@
 package com.wagerpro.wagerservice.application.service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -34,27 +33,24 @@ public class TicketSettlementService {
 	        TicketDomain current = 
 	        		ticketUpdateMode == TicketUpdateMode.CANCELLED 
 	        			? ticket.updatePotentialPayout() : ticket;
+	        	
+	        	return current.calculateStatus();
 	        
-	        return current.calculateStatus();
-	    })
-		.toList();
+	    	})
+    		.filter(ticket -> ticket.status() != TicketStatus.PENDING)
+    		.toList();
 	    
 	    ticketDomainRepository.saveAll(processedTickets);
 	    
-	    settleTicket( 
-	    		processedTickets.stream()
-		    		.filter(ticket -> ticket.status() == TicketStatus.WON)
-		    		.toList()
-		);
+	    settleTicket(processedTickets.stream()
+			    		.filter(ticket -> ticket.status() == TicketStatus.WON)
+			    		.toList());
 	}
 	
 	@Transactional
 	private void settleTicket(List<TicketDomain> ticketList) {
 		ticketList.stream().forEach(ticket -> {
-			Long userId = ticket.userId();
-			BigDecimal potentialPayout = ticket.potentialPayout();
-			
-			depositMoneyUseCase.execute(userId, potentialPayout, TransactionType.WIN_PAYOUT);
+			depositMoneyUseCase.execute(ticket.userId(), ticket.potentialPayout(), TransactionType.WIN_PAYOUT);
 		});
 	}
 	

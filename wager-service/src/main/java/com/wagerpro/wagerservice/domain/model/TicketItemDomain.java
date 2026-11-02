@@ -25,14 +25,14 @@ public record TicketItemDomain(
 		return passStatus(TicketItemStatus.LOST);
 	}
 
-	public TicketItemDomain markAsPending() {
-		ensurePending();
-		return passStatus(TicketItemStatus.PENDING);
-	}
 
 	public TicketItemDomain markAsCancelled() {
 		ensurePending();
 		return passStatus(TicketItemStatus.CANCELLED);
+	}
+	
+	public TicketItemDomain markAsPending() {
+		return passStatus(TicketItemStatus.PENDING);
 	}
 
 	private void ensurePending() {

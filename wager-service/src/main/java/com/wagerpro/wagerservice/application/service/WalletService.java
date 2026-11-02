@@ -20,11 +20,15 @@ public class WalletService {
 	private final WithdrawMoneyUseCase withdrawMoneyUseCase;
 
 	public WalletResponseDto deposit(@Valid CreateDepositRequestDto request) {
-		return depositMoneyUseCase.execute(request.userId(), request.amount(), TransactionType.DEPOSIT);
+		return depositMoneyUseCase.execute(request.userId(), 
+										   request.amount(), 
+										   TransactionType.DEPOSIT);
 	}
 
 	public WalletResponseDto withdraw(@Valid CreateWithdrawRequestDto request) {
-		return withdrawMoneyUseCase.execute(request.userId(), request.amount(), TransactionType.WITHDRAWAL);
+		return withdrawMoneyUseCase.execute(request.userId(), 
+											request.amount(), 
+											TransactionType.WITHDRAWAL);
 	}
 
 }

@@ -1,7 +1,113 @@
-version: "3.9"
-
 services:
 
+  # ==========================
+  # PostgreSQL - USER SERVICE
+  # ==========================
+  user-db:
+    image: postgres:17
+    container_name: user-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - wagerpro_user-db-data:/var/lib/postgresql/data
+    networks:
+      - wager-network  
+
+  # ==========================
+  # PostgreSQL - CATALOG SERVICE
+  # ==========================
+  catalog-db:
+    image: postgres:17
+    container_name: catalog-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: catalog_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5434:5432"
+    volumes:
+      - wagerpro_catalog-db-data:/var/lib/postgresql/data
+    networks:
+      - wager-network
+
+  # ==========================
+  # PostgreSQL - WAGER SERVICE
+  # ==========================
+  wager-db:
+    image: postgres:17
+    container_name: wager-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wager_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432"
+    volumes:
+      - wagerpro_wager-db-data:/var/lib/postgresql/data
+    networks:
+      - wager-network
+      
+  # ==========================
+  # USER SERVICE
+  # ==========================    
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    depends_on:
+      - user-db
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/user_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+    networks:
+      - wager-network
+      
+  # ==========================
+  # CATALOG SERVICE
+  # ==========================      
+  catalog-service:
+    build: ./catalog-service
+    container_name: catalog-service
+    depends_on:
+      - catalog-db
+      - kafka
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://catalog-db:5432/catalog_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+    networks:
+      - wager-network
+      
+  # ==========================
+  # WAGER SERVICE
+  # ==========================    
+  wager-service:
+    build: ./wager-service
+    container_name: wager-service
+    depends_on:
+      - wager-db
+      - kafka
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://wager-db:5432/wager_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+    networks:
+      - wager-network
+  
   # ==========================
   # ZOOKEEPER
   # ==========================
@@ -14,6 +120,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - wager-network  
 
   # ==========================
   # KAFKA
@@ -29,18 +137,15 @@ services:
       - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
-
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
-
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      
+    networks:
+      - wager-network
 
   # ==========================
   # KAFKA UI
@@ -56,8 +161,36 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: WagerPro
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    networks:
+      - wager-network
 
+  # ==========================
+  # PGADMIN
+  # ==========================
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@wagerpro.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - wager-network
+
+
+#################################################
+# Networks
+#################################################
+networks:
+  wager-network:
+    driver: bridge
+
+#################################################
+# Volumes
+#################################################
 volumes:
-  user-db-data:
-  catalog-db-data:
-  wager-db-data:
+  wagerpro_user-db-data:
+  wagerpro_catalog-db-data:
+  wagerpro_wager-db-data:

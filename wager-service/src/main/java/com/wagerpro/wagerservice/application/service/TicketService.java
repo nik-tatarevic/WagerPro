@@ -28,6 +28,7 @@ import com.wagerpro.wagerservice.domain.repository.TicketItemDomainRepository;
 import com.wagerpro.wagerservice.domain.strategy.MarketEvaluatorStrategy;
 import com.wagerpro.wagerservice.infrastructure.config.SecurityUtils;
 import com.wagerpro.wagerservice.infrastructure.kafka.event.MatchStatusChangedEvent;
+import com.wagerpro.wagerservice.infrastructure.persistence.enums.TicketItemStatus;
 import com.wagerpro.wagerservice.infrastructure.persistence.enums.TicketUpdateMode;
 import com.wagerpro.wagerservice.infrastructure.rest.CatalogServiceClient;
 import com.wagerpro.wagerservice.infrastructure.rest.dto.ChangedOddsResponseDto;
@@ -48,42 +49,6 @@ public class TicketService {
 	private final CreateTicketUseCase createTicketUseCase;
 	private final CatalogServiceClient catalogServiceClient;
 	
-	@Transactional
-	public void processMatchFinished(MatchStatusChangedEvent event) {
-		List<TicketItemDomain> pendingItems = 
-				ticketItemDomainRepository.findPendingByMatchId(Long.valueOf(event.matchId()));
-		
-		Set<Long> affectedTicketIds = new HashSet<>();
-		List<TicketItemDomain> itemsUpdatedStatus = pendingItems.stream().map(item -> {
-			affectedTicketIds.add(item.ticketId());
-			
-			MarketEvaluatorStrategy strategy = marketEvaluatorService.getStrategy(item.marketType());
-			boolean isWon = strategy.evaluate(event.homeGoals(), event.awayGoals());
-			
-			return isWon ? item.marAsWon() : item.markAsLost();
-			
-		}).toList();
-
-		ticketItemDomainRepository.saveAll(itemsUpdatedStatus);
-		
-		ticketSettlementService.updateAndSettleTickets(affectedTicketIds, TicketUpdateMode.FINISHED);
-	}
-	
-	@Transactional
-	public void processMatchCancelled(MatchStatusChangedEvent event) {
-		List<TicketItemDomain> pendingItems = ticketItemDomainRepository.findPendingByMatchId(event.matchId());
-		
-		Set<Long> affectedTicketIds = new HashSet<>();
-		List<TicketItemDomain> itemsUpdatedStatus = pendingItems.stream().map(item -> {
-			affectedTicketIds.add(item.ticketId());
-			return item.markAsCancelled();
-		}).toList();
-
-		ticketItemDomainRepository.saveAll(itemsUpdatedStatus);
-		
-		ticketSettlementService.updateAndSettleTickets(affectedTicketIds, TicketUpdateMode.CANCELLED);
-	}
-	
 	@Transactional(readOnly = true)
 	public Page<TicketBasicResponseDto> findAllByUser(Pageable pageable) {
 		@SuppressWarnings("static-access")
@@ -93,6 +58,7 @@ public class TicketService {
 		return tickets.map(mapper::toTicketBasicResponse);
 	}
 
+	@Transactional(readOnly = true)
 	public TicketDetailsResponseDto findTicketDetailsById(Long ticketId) {
 		TicketDomain ticket = ticketDomainRepository.findByIdWithItems(ticketId);
 		
@@ -139,6 +105,7 @@ public class TicketService {
 				);
 	}
 
+	@Transactional
 	public TicketBasicResponseDto createTicket(@Valid CreateTicketRequestDto request) {
 		@SuppressWarnings("static-access")
 		Long userId = securityUtils.getCurrentUserId();
@@ -152,6 +119,58 @@ public class TicketService {
 
 		TicketDomain savedTicket = createTicketUseCase.execute(request, userId);
 		return mapper.toTicketBasicResponse(savedTicket);
+	}
+	
+	@Transactional
+	public void processMatchFinished(MatchStatusChangedEvent event) {
+		Set<Long> affectedTicketIds = new HashSet<>();
+		List<Long> wonIds = new ArrayList<>();
+		List<Long> lostIds = new ArrayList<>();
+		
+		List<TicketItemDomain> pendingItems = 
+				ticketItemDomainRepository.findPendingByMatchId(Long.valueOf(event.matchId()));
+		
+	    pendingItems.forEach(item -> {
+	        affectedTicketIds.add(item.ticketId());
+	        
+	        MarketEvaluatorStrategy strategy = marketEvaluatorService.getStrategy(item.marketType());
+	        boolean isWon = strategy.evaluate(event.homeGoals(), event.awayGoals());
+	        
+	        TicketItemDomain updatedTicketItemDomain = isWon ? item.marAsWon() : item.markAsLost();
+	        
+	        if (updatedTicketItemDomain.status() == TicketItemStatus.WON) {
+	            wonIds.add(updatedTicketItemDomain.id());
+	        } else {
+	            lostIds.add(updatedTicketItemDomain.id());
+	        }
+	    });
+		
+		if (!wonIds.isEmpty()) {
+			ticketItemDomainRepository.updateStatus(wonIds, TicketItemStatus.WON);
+		}
+		
+		if (!lostIds.isEmpty()) {
+			ticketItemDomainRepository.updateStatus(lostIds, TicketItemStatus.LOST);
+		}
+		
+		ticketSettlementService.updateAndSettleTickets(affectedTicketIds, TicketUpdateMode.FINISHED);
+	}
+	
+	@Transactional
+	public void processMatchCancelled(MatchStatusChangedEvent event) {
+		Set<Long> affectedTicketIds = new HashSet<>();
+		Set<Long> cancelledIds = new HashSet<>();
+		
+		List<TicketItemDomain> pendingItems = ticketItemDomainRepository.findPendingByMatchId(event.matchId());
+		
+		pendingItems.forEach(item -> {
+			affectedTicketIds.add(item.ticketId());
+			cancelledIds.add(item.markAsCancelled().id());
+		});
+
+		ticketItemDomainRepository.updateStatusToCancelledByIds(cancelledIds);
+		
+		ticketSettlementService.updateAndSettleTickets(affectedTicketIds, TicketUpdateMode.CANCELLED);
 	}
 	
 }

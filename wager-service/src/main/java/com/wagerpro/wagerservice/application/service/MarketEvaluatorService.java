@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.wagerpro.wagerservice.domain.exception.UnsupportedMarketException;
 import com.wagerpro.wagerservice.domain.strategy.MarketEvaluatorStrategy;
 import com.wagerpro.wagerservice.infrastructure.persistence.enums.MarketType;
 
@@ -28,8 +29,7 @@ public class MarketEvaluatorService {
 
     public MarketEvaluatorStrategy getStrategy(MarketType marketType) {
         return Optional.ofNullable(evaluators.get(marketType))
-                .orElseThrow(); 
-//        .orElseThrow(() -> new UnsupportedMarketException(type)); TODO
+        		.orElseThrow(() -> new UnsupportedMarketException("Market type " + marketType + " not found."));
     }
 
 }

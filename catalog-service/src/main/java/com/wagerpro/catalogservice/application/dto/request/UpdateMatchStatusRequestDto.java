@@ -9,5 +9,8 @@ public record UpdateMatchStatusRequestDto(
 		Long matchId,
 		
 		@NotNull(message = "Match status is required")
-	    MatchStatus status
+	    MatchStatus status,
+	    
+	    Integer homeGoals,
+	    Integer awayGoals
 ) {}
