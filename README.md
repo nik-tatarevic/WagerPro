@@ -143,3 +143,9 @@ docker compose up -d --build
 
 ```
 
+## Future Improvements (Roadmap)
+
+The following features and improvements are planned for upcoming development phases:
+- **Test Classes**: Implementation of comprehensive unit and integration tests (JUnit 5, Mockito) to ensure code quality and reliability.
+- **Virtual Threads**: Leveraging Java 21 Virtual Threads to efficiently handle high-concurrency background tasks and live odds simulation.
+- **AWS S3 Integration**: Cloud storage integration for handling file uploads (e.g., media assets, user documents, or reports).

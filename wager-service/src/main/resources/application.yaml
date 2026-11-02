@@ -19,7 +19,7 @@ spring:
                     time_zone: UTC
 
     flyway:
-        enabled: true   # TODO - change later
+        enabled: true
         locations: classpath:db/migration
 
     kafka:
