@@ -4,6 +4,6 @@ import java.math.BigDecimal;
 
 public record MatchOddsSummaryProjection(
 		Long id, 
-		String type, 
+		Long marketDefinitionId, 
 		BigDecimal oddValue
 ) {}

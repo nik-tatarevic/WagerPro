@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateOrUpdateOddRequestDto(
+		Long oddId,
+		
 		@NotNull
 		Long matchId,
 		

@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableJpaAuditing
-@EnableScheduling // TODO
+@EnableScheduling
 public class CatalogServiceApplication {
 
 	public static void main(String[] args) {

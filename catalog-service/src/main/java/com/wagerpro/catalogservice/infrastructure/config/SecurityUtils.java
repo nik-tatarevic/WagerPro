@@ -22,4 +22,5 @@ public final class SecurityUtils {
 		UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 		return principal.username();
 	}
+
 }

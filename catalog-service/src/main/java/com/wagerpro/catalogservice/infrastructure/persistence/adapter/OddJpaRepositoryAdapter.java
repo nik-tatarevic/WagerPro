@@ -1,10 +1,10 @@
 package com.wagerpro.catalogservice.infrastructure.persistence.adapter;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import com.wagerpro.catalogservice.domain.exception.OddNotFoundException;
 import com.wagerpro.catalogservice.domain.model.OddDomain;
 import com.wagerpro.catalogservice.domain.repository.OddDomainRepository;
 import com.wagerpro.catalogservice.infrastructure.persistence.entity.MarketDefinition;
@@ -55,15 +55,11 @@ public class OddJpaRepositoryAdapter implements OddDomainRepository {
 	}
 
 	@Override
-	public BigDecimal findOddValueById(Long id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public OddDomain findById(Long id) {
-		Odd Odd = oddJpaRepository.findById(id).orElseThrow(); // TODO
-		return mapper.toDomain(Odd);
+		Odd odd = oddJpaRepository.findById(id)
+				.orElseThrow(() -> new OddNotFoundException("Current odd was not found."));
+		
+		return mapper.toDomain(odd);
 	}
 
 }

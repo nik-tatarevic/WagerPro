@@ -45,12 +45,6 @@ public class WalletJpaRepositoryAdapter implements WalletDomainRepository {
     }
 
 	@Override
-	public boolean existWalletById(Long walletId) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public WalletStatus getWalletStatusById(Long walletId) {
 		// TODO Auto-generated method stub
 		return null;

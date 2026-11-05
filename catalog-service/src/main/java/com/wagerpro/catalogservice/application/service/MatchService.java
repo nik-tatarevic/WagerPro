@@ -1,17 +1,16 @@
 package com.wagerpro.catalogservice.application.service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.wagerpro.catalogservice.application.dto.request.CreateMatchRequestDto;
 import com.wagerpro.catalogservice.application.dto.request.UpdateMatchStatusRequestDto;
@@ -25,11 +24,11 @@ import com.wagerpro.catalogservice.domain.model.MatchDomain;
 import com.wagerpro.catalogservice.domain.repository.MatchDomainRepository;
 import com.wagerpro.catalogservice.domain.validation.MatchValidation;
 import com.wagerpro.catalogservice.infrastructure.persistence.projection.MatchDetailsProjection;
-import com.wagerpro.catalogservice.infrastructure.persistence.projection.MatchOddsSummaryProjection;
 import com.wagerpro.catalogservice.infrastructure.persistence.projection.UpcomingMatchesProjection;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -39,24 +38,65 @@ public class MatchService {
 	private final MatchApiMapper mapper;
 	private final MatchValidation matchValidation;
 	private final UpdateMatchStatusUseCase updateMatchStatusUseCase;
+	private final RedisTemplate<String, Object> redisTemplate;
+	private final ObjectMapper objectMapper;
+	private static final String UPCOMING_MATCHES_SESSION_PREFIX = "matches:upcoming:";
+	private static final String ODDS_HASH_SESSION_PREFIX = "odds:hash:match:";
+	private static final Duration UPCOMING_MATCHES_SESSION_TTL = Duration.ofMinutes(30);
+	private static final Duration ODDS_SESSION_TTL = Duration.ofHours(12);
 
 	@Transactional
-	@CacheEvict(value = "upcomingMatches", key = "#sportName")
-	public MatchResponseDto save(@Valid @RequestBody CreateMatchRequestDto matchRequestDto) {
+	public MatchResponseDto save(CreateMatchRequestDto matchRequestDto) {
 		matchValidation.validateStartTime(matchRequestDto.startTime());
 		MatchDomain matchDomain = matchDomainRepository.save(mapper.toDomain(matchRequestDto));
+		
+		redisTemplate.delete(UPCOMING_MATCHES_SESSION_PREFIX + matchRequestDto.sportName().toUpperCase().trim());
+		
 		return mapper.toResponseWithLeagueId(matchDomain);
 	}
 	
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<MatchOddsSummaryResponseDto> findOddsByMatchId(Long matchId) {
-		List<MatchOddsSummaryProjection> allOddsByMatchId = matchDomainRepository.findOddsByMatchId(matchId);
-		return allOddsByMatchId.stream().map(x -> mapper.toResponseDto(x)).toList();
+		String redisKey = ODDS_HASH_SESSION_PREFIX + matchId;
+		Map<Object, Object> entries = redisTemplate.opsForHash().entries(redisKey);
+
+	    if (entries != null && !entries.isEmpty()) {
+	        return entries.values().stream()
+	                .map(obj -> objectMapper.convertValue(obj, MatchOddsSummaryResponseDto.class))
+	                .toList();
+	    }
+
+		List<MatchOddsSummaryResponseDto> allOddsByMatchId = 
+				matchDomainRepository.findOddsByMatchId(matchId)
+				.stream()
+				.map(x -> mapper.toResponseDto(x))
+				.toList();
+		
+		if (allOddsByMatchId.isEmpty()) {
+	        return Collections.emptyList();
+	    }
+		
+		Map<String, Object> oddsMap = allOddsByMatchId.stream()
+	            .collect(Collectors.toMap(
+	                dto -> String.valueOf(dto.id()),
+	                dto -> dto 
+	            ));
+		
+		redisTemplate.opsForHash().putAll(redisKey, oddsMap);
+	    redisTemplate.expire(redisKey, ODDS_SESSION_TTL);
+	    
+		return allOddsByMatchId;
 	}
 
-	@Transactional
-	@Cacheable(value = "upcomingMatches", key = "#sportName")
+	@Transactional(readOnly = true)
 	public List<UpcomingMatchesResponseDto> findUpcomingMatchesBySport(String sportName) {
+	    String key = UPCOMING_MATCHES_SESSION_PREFIX + sportName.toUpperCase().trim();
+
+	    Object cachedObj = redisTemplate.opsForValue().get(key);
+	    if (cachedObj != null) {
+	        return objectMapper.convertValue(cachedObj, new TypeReference<List<UpcomingMatchesResponseDto>>() {});
+	    }
+		
 		List<Long> matchIds = matchDomainRepository.findUpcomingMatchIdsBySport(sportName.toUpperCase().trim());
 		if (matchIds.isEmpty()) {
 			return Collections.emptyList();
@@ -66,14 +106,17 @@ public class MatchService {
 		Map<Long, List<UpcomingMatchesProjection>> groupedByMatch = 
 				projections.stream().collect(Collectors.groupingBy(UpcomingMatchesProjection::id));
 		
-		return mapToUpcomingMatchesResponseDto(groupedByMatch);
+		List<UpcomingMatchesResponseDto> responseDtos = mapToUpcomingMatchesResponseDto(groupedByMatch);
+		
+	    redisTemplate.opsForValue().set(key, responseDtos, UPCOMING_MATCHES_SESSION_TTL);
+	    
+		return responseDtos;
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<UpcomingMatchesResponseDto> findUpcomingMatchesBySportAndHours(
 			String sportName, int hours, int page, int size) {
 		
-		// in most cases, we retrieve the data from the cache
 		List<UpcomingMatchesResponseDto> upcomingMatchesByHours = 
 				this.findUpcomingMatchesBySport(sportName).stream()
 	            .filter(x -> x.startTime().compareTo(LocalDateTime.now().plusHours(hours)) <= 0)
@@ -90,12 +133,13 @@ public class MatchService {
 	    return upcomingMatchesByHours.subList(start, end);
 	}
 	
+	@Transactional
 	public MatchResponseDto updateStatus(UpdateMatchStatusRequestDto request) {
 		MatchDomain savedMatch = updateMatchStatusUseCase.execute(request);
 		return mapper.toResponseWithLeagueId(savedMatch);
     }
 	
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<MatchDetailsResponseDto> findDetailsForTicket(List<Long> matchIds) {
 		List<MatchDetailsProjection> detailsForTicket = matchDomainRepository.findDetailsForTicket(matchIds);
 		return mapper.toMatchDetailsResponseDtos(detailsForTicket);

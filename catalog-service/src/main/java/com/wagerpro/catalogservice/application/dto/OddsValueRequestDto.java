@@ -8,5 +8,6 @@ public record OddsValueRequestDto(
 		@NotNull
 		Long oddId,
 		@NotNull
-		BigDecimal oddValue
+		BigDecimal oddValue,
+		Long matchId
 ) {}

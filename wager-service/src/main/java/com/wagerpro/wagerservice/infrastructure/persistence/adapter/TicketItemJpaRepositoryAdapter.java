@@ -1,7 +1,6 @@
 package com.wagerpro.wagerservice.infrastructure.persistence.adapter;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Repository;
@@ -38,24 +37,6 @@ public class TicketItemJpaRepositoryAdapter implements TicketItemDomainRepositor
 		}
 		
 		return mapper.toDomain(ticketItemJpaRepository.save(ticketItem));
-	}
-
-	@Override
-	public Optional<TicketItemDomain> findById(Long id) {
-		// TODO Auto-generated method stub
-		return Optional.empty();
-	}
-
-	@Override
-	public List<TicketItemDomain> findByStatus(TicketItemStatus status) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<TicketItemDomain> findByMatchId(Long matchId) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

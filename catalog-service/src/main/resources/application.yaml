@@ -10,7 +10,7 @@ spring:
 
     jpa:
         hibernate:
-            ddl-auto: update  # TODO change later to 'validate'
+            ddl-auto: update # TODO change later to 'validate'
         open-in-view: false
         show-sql: true
         properties:
@@ -28,6 +28,17 @@ spring:
             key-serializer: org.apache.kafka.common.serialization.StringSerializer
             value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
+    data:
+        redis:
+            host: localhost
+            port: 6379
+
+    cache:
+        type: redis
+        redis:
+            cache-null-values: false
+            use-key-prefix: true
+
 server:
     port: 8082
 
@@ -35,7 +46,7 @@ security:
     jwt:
         # Development-only secret. Always override JWT_SECRET outside local development.
         secret: ${JWT_SECRET:V2FnZXJQcm9EZXZlbG9wbWVudFNlY3JldEtleUNoYW5nZU1lMjAyNg==}
-        expiration-ms: ${JWT_EXPIRATION_MS:10800000}
+        expiration-ms: ${JWT_EXPIRATION_MS:43200000}
 
 app:
     kafka:
@@ -63,4 +74,9 @@ info:
 
 logging:
     level:
-        com.wagerpro.catalogservice: DEBUG
+        root: INFO
+        com.wagerpro.catalogservice.infrastructure: WARN
+        hibernate: WARN
+
+    file:
+        name: logs/wager-pro.log

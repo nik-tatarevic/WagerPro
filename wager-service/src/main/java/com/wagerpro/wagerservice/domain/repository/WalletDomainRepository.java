@@ -15,7 +15,5 @@ public interface WalletDomainRepository {
     
     void deleteById(Long id);
     
-	boolean existWalletById(Long walletId);
-	
 	WalletStatus getWalletStatusById(Long walletId);
 }

@@ -67,7 +67,7 @@ public record TicketDomain(
 		
 		boolean allWonOrCancelled = countLost == 0 && (countWon + countCancelled) == totalItems;
 		
-		// TODO change the place of cashback promotion (strategy)
+		// TODO change the place of promotion -> service
 		boolean cashbackPromotion = countLost == 1 && (countWon + countCancelled) == totalItems - 1 
 				&& (totalOdds().compareTo(new BigDecimal(25)) >= 0);
 	

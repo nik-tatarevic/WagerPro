@@ -1,17 +1,22 @@
 package com.wagerpro.userservice.infrastructure.security;
 
+import java.time.Instant;
+import java.util.Date;
+import java.util.UUID;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import com.wagerpro.userservice.domain.model.UserDomain;
 import com.wagerpro.userservice.domain.strategy.TokenProvider;
+import com.wagerpro.userservice.infrastructure.security.dto.TokenResult;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
-import java.time.Instant;
-import java.util.Date;
 
 @Component
 public class JwtProvider implements TokenProvider {
@@ -21,7 +26,7 @@ public class JwtProvider implements TokenProvider {
 
     public JwtProvider(
             @Value("${security.jwt.secret}") String base64Secret,
-            @Value("${security.jwt.expiration-ms:3600000}") long expirationMillis) {
+            @Value("${security.jwt.expiration-ms}") long expirationMillis) {
         byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
         if (expirationMillis <= 0) {
@@ -31,11 +36,14 @@ public class JwtProvider implements TokenProvider {
     }
 
     @Override
-    public String createAccessToken(UserDomain user) {
+    public TokenResult createAccessToken(UserDomain user) {
         Instant issuedAt = Instant.now();
         Instant expiresAt = issuedAt.plusMillis(expirationMillis);
+        // create jti to store in redis instead of token
+        String jti = UUID.randomUUID().toString();
 
-        return Jwts.builder()
+        String accessToken = Jwts.builder()
+        		.id(jti)
                 .issuer("wagerpro-user-service")
                 .subject(user.id().toString())
                 .claim("username", user.username())
@@ -44,6 +52,8 @@ public class JwtProvider implements TokenProvider {
                 .expiration(Date.from(expiresAt))
                 .signWith(signingKey)
                 .compact();
+        
+        return new TokenResult(accessToken, jti, expiresAt);
     }
 
     public Claims parseClaims(String token) {

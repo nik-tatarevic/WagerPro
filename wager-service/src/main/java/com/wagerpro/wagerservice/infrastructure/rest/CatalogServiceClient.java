@@ -15,7 +15,6 @@ public interface CatalogServiceClient {
 	@PostExchange("/odds/check-ticket-odds")
 	List<ChangedOddsResponseDto> checkTicketOdds(@RequestBody List<ItemOddDetailsDto> oddsValueRequestDtos);
 	
-	
 	@PostExchange("/matches/ticket-summary")
 	List<MatchDetailsDto> findDetailsForTicket(@RequestBody Set<Long> matchIds);
 }

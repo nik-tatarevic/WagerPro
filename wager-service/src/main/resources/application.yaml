@@ -36,6 +36,18 @@ spring:
                         trusted:
                             packages: com.wagerpro.wagerservice.infrastructure.kafka.event
                         value.default.type: com.wagerpro.wagerservice.infrastructure.kafka.event.MatchStatusChangedEvent
+						
+    data:
+        redis:
+            host: localhost
+            port: 6379
+			
+    cache:
+       type: redis
+       redis:
+           cache-null-values: false
+           use-key-prefix: true
+		   
 server:
     port: 8083
 
@@ -43,7 +55,7 @@ security:
     jwt:
         # Development-only secret. Always override JWT_SECRET outside local development.
         secret: ${JWT_SECRET:V2FnZXJQcm9EZXZlbG9wbWVudFNlY3JldEtleUNoYW5nZU1lMjAyNg==}
-        expiration-ms: ${JWT_EXPIRATION_MS:10800000}
+        expiration-ms: ${JWT_EXPIRATION_MS:43200000}
 
 app:
     kafka:
@@ -70,8 +82,11 @@ info:
         version: 0.0.1-SNAPSHOT
 
 logging:
-    #level:
-        #com.wagerpro.wagerservice: DEBUG
+    level:
+        root: INFO
+        com.wagerpro.wagerservice.infrastructure: WARN
+        hibernate: WARN
+		
     file:
         name: logs/wager-pro.log
 

@@ -22,7 +22,10 @@ import com.wagerpro.userservice.domain.repository.UserDomainRepository;
 import com.wagerpro.userservice.domain.strategy.PasswordEncoderStrategy;
 import com.wagerpro.userservice.domain.strategy.TokenProvider;
 import com.wagerpro.userservice.domain.validation.UserValidation;
+import com.wagerpro.userservice.infrastructure.redis.UserSessionRedisService;
+import com.wagerpro.userservice.infrastructure.security.dto.TokenResult;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,6 +38,7 @@ public class UserService {
     private final TokenProvider tokenProvider;
     private final UserApiMapper userMapper;
     private final UserRegisteredPublisher userRegisteredPublisher;
+    private final UserSessionRedisService userSessionRedisService;
 
     @Transactional
     public UserResponseDto register(RegisterUserRequestDto request) {
@@ -75,9 +79,14 @@ public class UserService {
             throw new InvalidCredentialsException();
         }
 
-        String accessToken = tokenProvider.createAccessToken(user);
-        return new LoginResponseDto(accessToken, "Bearer", tokenProvider.getAccessTokenLifetimeSeconds(),
-                userMapper.toResponse(user));
+        TokenResult tokenResult = tokenProvider.createAccessToken(user);
+        
+        userSessionRedisService.createSession(tokenResult.jti(), user.username());
+        
+        return new LoginResponseDto(tokenResult.accessToken(), 
+					        		"Bearer", 
+					        		tokenProvider.getAccessTokenLifetimeSeconds(),
+					                userMapper.toResponse(user));
     }
 
     @Transactional(readOnly = true)
@@ -129,4 +138,14 @@ public class UserService {
                 persistedUser.createdAt(), LocalDateTime.now());
         return userMapper.toResponse(userRepository.save(updated));
     }
+
+	public void logout(HttpServletRequest request) {
+	 	String bearerToken = request.getHeader("Authorization");
+	        
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            String token = bearerToken.substring(7);
+            userSessionRedisService.deleteSession(token);
+        }
+	}
+	
 }

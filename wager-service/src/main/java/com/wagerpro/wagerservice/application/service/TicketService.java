@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +49,8 @@ public class TicketService {
 	private final SecurityUtils securityUtils;
 	private final CreateTicketUseCase createTicketUseCase;
 	private final CatalogServiceClient catalogServiceClient;
+	private final StringRedisTemplate redisTemplate;
+	private static final String ODDS_HASH_SESSION_PREFIX = "odds:hash:match:";
 	
 	@Transactional(readOnly = true)
 	public Page<TicketBasicResponseDto> findAllByUser(Pageable pageable) {
@@ -126,9 +129,9 @@ public class TicketService {
 		Set<Long> affectedTicketIds = new HashSet<>();
 		List<Long> wonIds = new ArrayList<>();
 		List<Long> lostIds = new ArrayList<>();
+		Long matchId = event.matchId();
 		
-		List<TicketItemDomain> pendingItems = 
-				ticketItemDomainRepository.findPendingByMatchId(Long.valueOf(event.matchId()));
+		List<TicketItemDomain> pendingItems = ticketItemDomainRepository.findPendingByMatchId(matchId);
 		
 	    pendingItems.forEach(item -> {
 	        affectedTicketIds.add(item.ticketId());
@@ -153,6 +156,9 @@ public class TicketService {
 			ticketItemDomainRepository.updateStatus(lostIds, TicketItemStatus.LOST);
 		}
 		
+		// delete match (odds) from cache
+		redisTemplate.delete(ODDS_HASH_SESSION_PREFIX + matchId);
+		
 		ticketSettlementService.updateAndSettleTickets(affectedTicketIds, TicketUpdateMode.FINISHED);
 	}
 	
@@ -160,15 +166,19 @@ public class TicketService {
 	public void processMatchCancelled(MatchStatusChangedEvent event) {
 		Set<Long> affectedTicketIds = new HashSet<>();
 		Set<Long> cancelledIds = new HashSet<>();
+		Long matchId = event.matchId();
 		
-		List<TicketItemDomain> pendingItems = ticketItemDomainRepository.findPendingByMatchId(event.matchId());
+		List<TicketItemDomain> pendingItems = ticketItemDomainRepository.findPendingByMatchId(matchId);
 		
 		pendingItems.forEach(item -> {
 			affectedTicketIds.add(item.ticketId());
-			cancelledIds.add(item.markAsCancelled().id());
+			cancelledIds.add(item.id());
 		});
 
 		ticketItemDomainRepository.updateStatusToCancelledByIds(cancelledIds);
+		
+		// delete match (odds) from cache
+		redisTemplate.delete(ODDS_HASH_SESSION_PREFIX + matchId);
 		
 		ticketSettlementService.updateAndSettleTickets(affectedTicketIds, TicketUpdateMode.CANCELLED);
 	}
