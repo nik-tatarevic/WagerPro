@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.wagerpro.wagerservice.domain.exception.OddsChangedException;
 import com.wagerpro.wagerservice.domain.exception.TicketNotFoundException;
 import com.wagerpro.wagerservice.domain.exception.WalletNotFoundException;
-import com.wagerpro.wagerservice.infrastructure.rest.dto.ChangedOddsResponseDto;
+import com.wagerpro.wagerservice.infrastructure.rest.dto.OddResponseDto;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(OddsChangedException.class)
-    public ResponseEntity<List<ChangedOddsResponseDto>> handle(OddsChangedException ex) {
+    public ResponseEntity<List<OddResponseDto>> handle(OddsChangedException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ex.getResponse());

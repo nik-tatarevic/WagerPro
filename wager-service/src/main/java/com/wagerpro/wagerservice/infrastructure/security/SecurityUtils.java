@@ -1,10 +1,10 @@
-package com.wagerpro.wagerservice.infrastructure.config;
+package com.wagerpro.wagerservice.infrastructure.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.wagerpro.wagerservice.infrastructure.rest.UserPrincipal;
+import com.wagerpro.wagerservice.infrastructure.rest.dto.UserPrincipal;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

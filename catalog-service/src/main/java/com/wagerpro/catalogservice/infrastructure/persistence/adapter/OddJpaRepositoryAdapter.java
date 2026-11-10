@@ -1,6 +1,8 @@
 package com.wagerpro.catalogservice.infrastructure.persistence.adapter;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -60,6 +62,13 @@ public class OddJpaRepositoryAdapter implements OddDomainRepository {
 				.orElseThrow(() -> new OddNotFoundException("Current odd was not found."));
 		
 		return mapper.toDomain(odd);
+	}
+	
+	@Override
+	public List<OddDomain> findAllById(Set<Long> oddIds) {
+		return oddJpaRepository.findAllById(oddIds).stream()
+				.map(odd -> mapper.toDomain(odd))
+				.toList();
 	}
 
 }

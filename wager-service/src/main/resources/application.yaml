@@ -10,7 +10,7 @@ spring:
 
     jpa:
         hibernate:
-            ddl-auto: update  # TODO change later to 'validate'
+            ddl-auto: update # TODO change later to 'validate'
         open-in-view: false
         show-sql: true
         properties:
@@ -36,18 +36,18 @@ spring:
                         trusted:
                             packages: com.wagerpro.wagerservice.infrastructure.kafka.event
                         value.default.type: com.wagerpro.wagerservice.infrastructure.kafka.event.MatchStatusChangedEvent
-						
+
     data:
         redis:
             host: localhost
             port: 6379
-			
+
     cache:
-       type: redis
-       redis:
-           cache-null-values: false
-           use-key-prefix: true
-		   
+        type: redis
+        redis:
+            cache-null-values: false
+            use-key-prefix: true
+
 server:
     port: 8083
 
@@ -86,7 +86,7 @@ logging:
         root: INFO
         com.wagerpro.wagerservice.infrastructure: WARN
         hibernate: WARN
-		
+
     file:
         name: logs/wager-pro.log
 

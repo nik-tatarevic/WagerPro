@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class UserSessionRedisService {
+public class UserSessionRedisAdapter {
 	
 	private final StringRedisTemplate redisTemplate;
 	private static final String SESSION_PREFIX = "session:jti:";

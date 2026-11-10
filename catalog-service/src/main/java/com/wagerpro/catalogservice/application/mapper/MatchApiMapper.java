@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 import com.wagerpro.catalogservice.application.dto.request.CreateMatchRequestDto;
 import com.wagerpro.catalogservice.application.dto.response.MatchDetailsResponseDto;
-import com.wagerpro.catalogservice.application.dto.response.MatchOddsSummaryResponseDto;
+import com.wagerpro.catalogservice.application.dto.response.OddSummaryResponseDto;
 import com.wagerpro.catalogservice.application.dto.response.MatchResponseDto;
 import com.wagerpro.catalogservice.domain.model.MatchDomain;
 import com.wagerpro.catalogservice.infrastructure.persistence.projection.MatchDetailsProjection;
@@ -17,7 +17,7 @@ public interface MatchApiMapper {
 
 	MatchDomain toDomain(CreateMatchRequestDto matchRequestDto);
 	
-	MatchOddsSummaryResponseDto toResponseDto(MatchOddsSummaryProjection matchOddsSummaryProjection);
+	OddSummaryResponseDto toResponseDto(MatchOddsSummaryProjection matchOddsSummaryProjection);
 	
 	List<MatchDetailsResponseDto> toMatchDetailsResponseDtos(List<MatchDetailsProjection> projection);
 	

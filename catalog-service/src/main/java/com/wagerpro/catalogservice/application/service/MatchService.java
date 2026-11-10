@@ -1,21 +1,19 @@
 package com.wagerpro.catalogservice.application.service;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.wagerpro.catalogservice.application.dto.request.CreateMatchRequestDto;
 import com.wagerpro.catalogservice.application.dto.request.UpdateMatchStatusRequestDto;
 import com.wagerpro.catalogservice.application.dto.response.MatchDetailsResponseDto;
-import com.wagerpro.catalogservice.application.dto.response.MatchOddsSummaryResponseDto;
+import com.wagerpro.catalogservice.application.dto.response.OddSummaryResponseDto;
 import com.wagerpro.catalogservice.application.dto.response.MatchResponseDto;
 import com.wagerpro.catalogservice.application.dto.response.UpcomingMatchesResponseDto;
 import com.wagerpro.catalogservice.application.mapper.MatchApiMapper;
@@ -25,10 +23,9 @@ import com.wagerpro.catalogservice.domain.repository.MatchDomainRepository;
 import com.wagerpro.catalogservice.domain.validation.MatchValidation;
 import com.wagerpro.catalogservice.infrastructure.persistence.projection.MatchDetailsProjection;
 import com.wagerpro.catalogservice.infrastructure.persistence.projection.UpcomingMatchesProjection;
+import com.wagerpro.catalogservice.infrastructure.redis.CatalogRedisAdapter;
 
 import lombok.RequiredArgsConstructor;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -38,68 +35,50 @@ public class MatchService {
 	private final MatchApiMapper mapper;
 	private final MatchValidation matchValidation;
 	private final UpdateMatchStatusUseCase updateMatchStatusUseCase;
-	private final RedisTemplate<String, Object> redisTemplate;
-	private final ObjectMapper objectMapper;
-	private static final String UPCOMING_MATCHES_SESSION_PREFIX = "matches:upcoming:";
-	private static final String ODDS_HASH_SESSION_PREFIX = "odds:hash:match:";
-	private static final Duration UPCOMING_MATCHES_SESSION_TTL = Duration.ofMinutes(30);
-	private static final Duration ODDS_SESSION_TTL = Duration.ofHours(12);
+	private final CatalogRedisAdapter redisAdapter;
 
 	@Transactional
 	public MatchResponseDto save(CreateMatchRequestDto matchRequestDto) {
 		matchValidation.validateStartTime(matchRequestDto.startTime());
 		MatchDomain matchDomain = matchDomainRepository.save(mapper.toDomain(matchRequestDto));
 		
-		redisTemplate.delete(UPCOMING_MATCHES_SESSION_PREFIX + matchRequestDto.sportName().toUpperCase().trim());
-		
+		redisAdapter.deleteKeyBySportName(matchRequestDto.sportName().toUpperCase().trim());
 		return mapper.toResponseWithLeagueId(matchDomain);
 	}
 	
 	@Transactional(readOnly = true)
-	public List<MatchOddsSummaryResponseDto> findOddsByMatchId(Long matchId) {
-		String redisKey = ODDS_HASH_SESSION_PREFIX + matchId;
-		Map<Object, Object> entries = redisTemplate.opsForHash().entries(redisKey);
-
-	    if (entries != null && !entries.isEmpty()) {
-	        return entries.values().stream()
-	                .map(obj -> objectMapper.convertValue(obj, MatchOddsSummaryResponseDto.class))
-	                .toList();
-	    }
-
-		List<MatchOddsSummaryResponseDto> allOddsByMatchId = 
+	public List<OddSummaryResponseDto> findOddsByMatchId(Long matchId) {
+		List<OddSummaryResponseDto> redisOddsForMatch = redisAdapter.findOddsForMatch(matchId);
+	    if (!redisOddsForMatch.isEmpty()) {
+	    	return redisOddsForMatch;
+		}
+	    
+		List<OddSummaryResponseDto> allOddsByMatchId = 
 				matchDomainRepository.findOddsByMatchId(matchId)
 				.stream()
 				.map(x -> mapper.toResponseDto(x))
 				.toList();
 		
 		if (allOddsByMatchId.isEmpty()) {
-	        return Collections.emptyList();
+	        return List.of();
 	    }
-		
-		Map<String, Object> oddsMap = allOddsByMatchId.stream()
-	            .collect(Collectors.toMap(
-	                dto -> String.valueOf(dto.id()),
-	                dto -> dto 
-	            ));
-		
-		redisTemplate.opsForHash().putAll(redisKey, oddsMap);
-	    redisTemplate.expire(redisKey, ODDS_SESSION_TTL);
+		redisAdapter.setOddsForMatch(matchId, allOddsByMatchId);
 	    
 		return allOddsByMatchId;
 	}
 
 	@Transactional(readOnly = true)
 	public List<UpcomingMatchesResponseDto> findUpcomingMatchesBySport(String sportName) {
-	    String key = UPCOMING_MATCHES_SESSION_PREFIX + sportName.toUpperCase().trim();
-
-	    Object cachedObj = redisTemplate.opsForValue().get(key);
-	    if (cachedObj != null) {
-	        return objectMapper.convertValue(cachedObj, new TypeReference<List<UpcomingMatchesResponseDto>>() {});
+	    List<UpcomingMatchesResponseDto> redisUpcomingMatches = 
+	    		redisAdapter.findUpcomingMatchesBySport(sportName);
+	    
+	    if (!redisUpcomingMatches.isEmpty()) {
+	    	return redisUpcomingMatches;
 	    }
 		
 		List<Long> matchIds = matchDomainRepository.findUpcomingMatchIdsBySport(sportName.toUpperCase().trim());
 		if (matchIds.isEmpty()) {
-			return Collections.emptyList();
+			return List.of();
 		}
 
 		List<UpcomingMatchesProjection> projections = matchDomainRepository.findBasicOddsForMatchIds(matchIds);
@@ -108,8 +87,8 @@ public class MatchService {
 		
 		List<UpcomingMatchesResponseDto> responseDtos = mapToUpcomingMatchesResponseDto(groupedByMatch);
 		
-	    redisTemplate.opsForValue().set(key, responseDtos, UPCOMING_MATCHES_SESSION_TTL);
-	    
+		redisAdapter.setUpcomingMatchesBySport(sportName, responseDtos);
+		
 		return responseDtos;
 	}
 

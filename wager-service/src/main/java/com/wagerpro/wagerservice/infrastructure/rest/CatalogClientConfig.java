@@ -1,4 +1,4 @@
-package com.wagerpro.wagerservice.infrastructure.config;
+package com.wagerpro.wagerservice.infrastructure.rest;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +9,6 @@ import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
-
-import com.wagerpro.wagerservice.infrastructure.rest.CatalogServiceClient;
 
 @Configuration
 public class CatalogClientConfig {

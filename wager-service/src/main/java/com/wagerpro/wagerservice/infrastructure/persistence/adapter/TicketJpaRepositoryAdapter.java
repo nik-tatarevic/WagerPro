@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.wagerpro.wagerservice.domain.exception.TicketNotFoundException;
 import com.wagerpro.wagerservice.domain.model.TicketDomain;
@@ -68,10 +67,12 @@ public class TicketJpaRepositoryAdapter implements TicketDomainRepository {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
+//	@Transactional(readOnly = true)
 	public TicketDomain findByIdWithItems(Long ticketId) {
 		Ticket ticket = ticketJpaRepository.findByIdWithItems(ticketId).
-				orElseThrow(() -> new TicketNotFoundException(""));
+				orElseThrow(() -> 
+					new TicketNotFoundException("Ticket id: $s not found ".formatted(ticketId))
+				);
 		
 		return mapper.toDomain(ticket);
 	}

@@ -27,6 +27,10 @@ public record OddDomain(
 	public OddDomain deactivate() {
 		return new OddDomain(id, matchId, marketDefinitionId, oddValue, false, version);
 	}
+	
+	public OddDomain setMarketDefinitionId(Long marketDefinitionId) {
+		return new OddDomain(id, matchId, marketDefinitionId, oddValue, true, version);
+	}
 
 	private static void validateOddValue(BigDecimal value) {
 		if (value == null || value.compareTo(new BigDecimal("1.01")) < 0) {

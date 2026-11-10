@@ -1,4 +1,4 @@
-package com.wagerpro.catalogservice.infrastructure.config;
+package com.wagerpro.catalogservice.infrastructure.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

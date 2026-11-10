@@ -14,7 +14,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.wagerpro.userservice.infrastructure.redis.UserSessionRedisService;
+import com.wagerpro.userservice.infrastructure.redis.UserSessionRedisAdapter;
 
 import java.io.IOException;
 
@@ -23,11 +23,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final CustomUserDetailsService userDetailsService;
-    private final UserSessionRedisService userSessionRedisService;
+    private final UserSessionRedisAdapter userSessionRedisService;
 
     public JwtFilter(JwtProvider jwtProvider, 
 		    		 CustomUserDetailsService userDetailsService, 
-		    		 UserSessionRedisService userSessionRedisService) {
+		    		 UserSessionRedisAdapter userSessionRedisService) {
         this.jwtProvider = jwtProvider;
         this.userDetailsService = userDetailsService;
         this.userSessionRedisService = userSessionRedisService;
@@ -45,8 +45,6 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 if (jwtProvider.isTokenValid(token)) {
                 	Claims claims = jwtProvider.parseClaims(token);
-                	String jti = claims.getId();
-                	
                 	Long userId = Long.valueOf(claims.getSubject());
                     UserDetails userDetails = userDetailsService.loadUserById(userId);
 
@@ -58,7 +56,7 @@ public class JwtFilter extends OncePerRequestFilter {
                         
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                         
-                        userSessionRedisService.refreshSessionIfExists(jti);
+                        userSessionRedisService.refreshSessionIfExists(claims.getId());
                     }
                 }
                 

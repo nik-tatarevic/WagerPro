@@ -1,4 +1,4 @@
-package com.wagerpro.wagerservice.infrastructure.config;
+package com.wagerpro.wagerservice.infrastructure.security;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.wagerpro.wagerservice.infrastructure.rest.UserPrincipal;
+import com.wagerpro.wagerservice.infrastructure.rest.dto.UserPrincipal;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

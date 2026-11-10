@@ -15,7 +15,7 @@ import com.wagerpro.catalogservice.infrastructure.persistence.projection.Upcomin
 public interface MatchJpaRepository extends JpaRepository<Match, Long> {
 	
 	@Query(value = """
-            SELECT o.id, md.type, o.odd_value 
+            SELECT o.id, md.id, o.odd_value 
             FROM odds o
             JOIN market_definitions md on md.id = o.market_definition_id
             WHERE o.match_id = :matchId AND o.is_active = true

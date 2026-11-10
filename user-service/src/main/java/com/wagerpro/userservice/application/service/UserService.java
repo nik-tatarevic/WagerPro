@@ -22,7 +22,7 @@ import com.wagerpro.userservice.domain.repository.UserDomainRepository;
 import com.wagerpro.userservice.domain.strategy.PasswordEncoderStrategy;
 import com.wagerpro.userservice.domain.strategy.TokenProvider;
 import com.wagerpro.userservice.domain.validation.UserValidation;
-import com.wagerpro.userservice.infrastructure.redis.UserSessionRedisService;
+import com.wagerpro.userservice.infrastructure.redis.UserSessionRedisAdapter;
 import com.wagerpro.userservice.infrastructure.security.dto.TokenResult;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +38,7 @@ public class UserService {
     private final TokenProvider tokenProvider;
     private final UserApiMapper userMapper;
     private final UserRegisteredPublisher userRegisteredPublisher;
-    private final UserSessionRedisService userSessionRedisService;
+    private final UserSessionRedisAdapter userSessionRedisService;
 
     @Transactional
     public UserResponseDto register(RegisterUserRequestDto request) {

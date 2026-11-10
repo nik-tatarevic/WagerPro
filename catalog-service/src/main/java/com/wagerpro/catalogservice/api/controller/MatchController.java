@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wagerpro.catalogservice.application.dto.request.CreateMatchRequestDto;
 import com.wagerpro.catalogservice.application.dto.request.UpdateMatchStatusRequestDto;
 import com.wagerpro.catalogservice.application.dto.response.MatchDetailsResponseDto;
-import com.wagerpro.catalogservice.application.dto.response.MatchOddsSummaryResponseDto;
+import com.wagerpro.catalogservice.application.dto.response.OddSummaryResponseDto;
 import com.wagerpro.catalogservice.application.dto.response.MatchResponseDto;
 import com.wagerpro.catalogservice.application.dto.response.UpcomingMatchesResponseDto;
 import com.wagerpro.catalogservice.application.service.MatchService;
@@ -62,8 +62,8 @@ public class MatchController {
 	}
 	
 	@GetMapping("/{matchId}/odds")
-	public ResponseEntity<List<MatchOddsSummaryResponseDto>> findOddsByMatchId(@PathVariable Long matchId) {
-		List<MatchOddsSummaryResponseDto> matchWithOdds = matchService.findOddsByMatchId(matchId);
+	public ResponseEntity<List<OddSummaryResponseDto>> findOddsByMatchId(@PathVariable Long matchId) {
+		List<OddSummaryResponseDto> matchWithOdds = matchService.findOddsByMatchId(matchId);
 		return ResponseEntity.ok(matchWithOdds);
 	}
 	

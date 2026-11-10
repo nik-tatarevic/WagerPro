@@ -8,12 +8,12 @@ import org.springframework.web.service.annotation.PostExchange;
 
 import com.wagerpro.wagerservice.application.dto.ItemOddDetailsDto;
 import com.wagerpro.wagerservice.application.dto.response.MatchDetailsDto;
-import com.wagerpro.wagerservice.infrastructure.rest.dto.ChangedOddsResponseDto;
+import com.wagerpro.wagerservice.infrastructure.rest.dto.OddResponseDto;
 
 public interface CatalogServiceClient {
 	
 	@PostExchange("/odds/check-ticket-odds")
-	List<ChangedOddsResponseDto> checkTicketOdds(@RequestBody List<ItemOddDetailsDto> oddsValueRequestDtos);
+	List<OddResponseDto> checkTicketOdds(@RequestBody List<ItemOddDetailsDto> oddsValueRequestDtos);
 	
 	@PostExchange("/matches/ticket-summary")
 	List<MatchDetailsDto> findDetailsForTicket(@RequestBody Set<Long> matchIds);

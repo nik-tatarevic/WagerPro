@@ -1,4 +1,4 @@
-package com.wagerpro.catalogservice.infrastructure.config;
+package com.wagerpro.catalogservice.infrastructure.security;
 
 import java.io.IOException;
 import java.time.Duration;

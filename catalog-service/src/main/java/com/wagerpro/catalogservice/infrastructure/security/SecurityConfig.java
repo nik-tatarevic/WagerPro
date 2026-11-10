@@ -1,4 +1,4 @@
-package com.wagerpro.catalogservice.infrastructure.config;
+package com.wagerpro.catalogservice.infrastructure.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,8 +25,9 @@ public class SecurityConfig {
 
 		http.csrf(AbstractHttpConfigurer::disable)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(
-						auth -> auth.requestMatchers("/actuator/**").permitAll().anyRequest().authenticated())
+				.authorizeHttpRequests(auth -> 
+						auth.requestMatchers("/actuator/**").permitAll()
+						.anyRequest().authenticated())
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();

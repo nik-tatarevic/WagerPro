@@ -27,12 +27,12 @@ import com.wagerpro.wagerservice.domain.model.TicketItemDomain;
 import com.wagerpro.wagerservice.domain.repository.TicketDomainRepository;
 import com.wagerpro.wagerservice.domain.repository.TicketItemDomainRepository;
 import com.wagerpro.wagerservice.domain.strategy.MarketEvaluatorStrategy;
-import com.wagerpro.wagerservice.infrastructure.config.SecurityUtils;
 import com.wagerpro.wagerservice.infrastructure.kafka.event.MatchStatusChangedEvent;
 import com.wagerpro.wagerservice.infrastructure.persistence.enums.TicketItemStatus;
 import com.wagerpro.wagerservice.infrastructure.persistence.enums.TicketUpdateMode;
 import com.wagerpro.wagerservice.infrastructure.rest.CatalogServiceClient;
-import com.wagerpro.wagerservice.infrastructure.rest.dto.ChangedOddsResponseDto;
+import com.wagerpro.wagerservice.infrastructure.rest.dto.OddResponseDto;
+import com.wagerpro.wagerservice.infrastructure.security.SecurityUtils;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -113,7 +113,7 @@ public class TicketService {
 		@SuppressWarnings("static-access")
 		Long userId = securityUtils.getCurrentUserId();
 		
-		List<ChangedOddsResponseDto> changedOdds = 
+		List<OddResponseDto> changedOdds = 
 				catalogServiceClient.checkTicketOdds(request.itemsAndOdds());
 		
 		if (!changedOdds.isEmpty()) {
@@ -156,7 +156,7 @@ public class TicketService {
 			ticketItemDomainRepository.updateStatus(lostIds, TicketItemStatus.LOST);
 		}
 		
-		// delete match (odds) from cache
+		// redis delete odds for match
 		redisTemplate.delete(ODDS_HASH_SESSION_PREFIX + matchId);
 		
 		ticketSettlementService.updateAndSettleTickets(affectedTicketIds, TicketUpdateMode.FINISHED);
@@ -177,7 +177,7 @@ public class TicketService {
 
 		ticketItemDomainRepository.updateStatusToCancelledByIds(cancelledIds);
 		
-		// delete match (odds) from cache
+		// redis delete odds for match
 		redisTemplate.delete(ODDS_HASH_SESSION_PREFIX + matchId);
 		
 		ticketSettlementService.updateAndSettleTickets(affectedTicketIds, TicketUpdateMode.CANCELLED);

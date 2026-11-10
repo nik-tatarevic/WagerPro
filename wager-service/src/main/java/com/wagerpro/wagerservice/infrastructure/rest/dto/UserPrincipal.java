@@ -1,4 +1,4 @@
-package com.wagerpro.wagerservice.infrastructure.rest;
+package com.wagerpro.wagerservice.infrastructure.rest.dto;
 
 public record UserPrincipal(
 		Long userId,

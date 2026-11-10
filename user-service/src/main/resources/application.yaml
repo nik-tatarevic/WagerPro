@@ -10,7 +10,7 @@ spring:
 
     jpa:
         hibernate:
-            ddl-auto: update  # TODO change later to 'validate'
+            ddl-auto: update # TODO change later to 'validate'
         open-in-view: false
         show-sql: true
         properties:
@@ -27,12 +27,12 @@ spring:
         producer:
             key-serializer: org.apache.kafka.common.serialization.StringSerializer
             value-serializer: org.apache.kafka.common.serialization.StringSerializer
-			
+
     data:
         redis:
             host: localhost
             port: 6379
-				
+
     cache:
         type: redis
         redis:
@@ -77,6 +77,6 @@ logging:
         root: INFO
         com.wagerpro.userservice.infrastructure: WARN
         hibernate: WARN
-		
+
     file:
-        name: logs/wager-pro.log		
+        name: logs/wager-pro.log
